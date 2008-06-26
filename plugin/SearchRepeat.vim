@@ -24,10 +24,11 @@ if exists('g:loaded_SearchRepeat') || (v:version < 700)
 endif
 let g:loaded_SearchRepeat = 1
 
-nnoremap <Plug>SearchRepeat_n n
-nnoremap <Plug>SearchRepeat_N N
-
 let s:lastSearch = ["\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N"]
+
+function! s:SearchSet( mapping, oppositeMapping )
+    let s:lastSearch = [a:mapping, a:oppositeMapping]
+endfunction
 
 function! s:SearchWith( mapping, oppositeMapping )
     execute 'normal ' . a:mapping
@@ -36,15 +37,31 @@ endfunction
 
 function! s:SearchRepeat( isOpposite )
     execute 'normal ' . s:lastSearch[ a:isOpposite ]
-endfunctio
+endfunction
 
+
+
+" The mappings cannot be executed with ':normal!', so that the <Plug> mappings
+" apply. The [nN] commands must be executed without remapping, or we end up in
+" endless recursion. Thus, define noremapping mappings for [nN]. 
+nnoremap <Plug>SearchRepeat_n n
+nnoremap <Plug>SearchRepeat_N N
+
+" n/N now repeat the last type of search. 
 nnoremap <silent> n :<C-U>call <SID>SearchRepeat(0)<CR>
 nnoremap <silent> N :<C-U>call <SID>SearchRepeat(1)<CR>
 
-nmap <silent> gn :<C-U>call <SID>SearchWith("\<Plug>MarkSearchAnyNext", "\<Plug>MarkSearchAnyPrev")<CR>
-nmap <silent> gN :<C-U>call <SID>SearchWith("\<Plug>MarkSearchAnyPrev", "\<Plug>MarkSearchAnyNext")<CR>
-nmap <silent> gm :<C-U>call <SID>SearchWith("\<Plug>MarkSearchCurrentNext", "\<Plug>MarkSearchCurrentPrev")<CR>
-nmap <silent> gM :<C-U>call <SID>SearchWith("\<Plug>MarkSearchCurrentPrev", "\<Plug>MarkSearchCurrentNext")<CR>
+" Capture changes in the search pattern. 
+nnoremap <silent> /  :<C-U>call <SID>SearchSet("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N")<CR>/
+nnoremap <silent> ?  :<C-U>call <SID>SearchSet("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N")<CR>?
+nmap <silent>  *     :<C-U>call <SID>SearchSet("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N")<CR><Plug>SearchHighlightingStar
+nmap <silent> g*     :<C-U>call <SID>SearchSet("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N")<CR><Plug>SearchHighlightingGStar
+vmap <silent>  *     :<C-U>call <SID>SearchSet("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N")<CR>gv<Plug>SearchHighlightingStar
+
+nnoremap <silent> gn :<C-U>call <SID>SearchWith("\<Plug>MarkSearchAnyNext", "\<Plug>MarkSearchAnyPrev")<CR>
+nnoremap <silent> gN :<C-U>call <SID>SearchWith("\<Plug>MarkSearchAnyPrev", "\<Plug>MarkSearchAnyNext")<CR>
+nnoremap <silent> gm :<C-U>call <SID>SearchWith("\<Plug>MarkSearchCurrentNext", "\<Plug>MarkSearchCurrentPrev")<CR>
+nnoremap <silent> gM :<C-U>call <SID>SearchWith("\<Plug>MarkSearchCurrentPrev", "\<Plug>MarkSearchCurrentNext")<CR>
 
 " vim: set sts=4 sw=4 noexpandtab ff=unix fdm=syntax :
 

@@ -27,24 +27,24 @@ let g:loaded_SearchRepeat = 1
 nnoremap <Plug>SearchRepeat_n n
 nnoremap <Plug>SearchRepeat_N N
 
-let s:lastSearch = "\<Plug>SearchRepeat_n"
+let s:lastSearch = ["\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N"]
 
-function! s:SearchWith( mapping )
+function! s:SearchWith( mapping, oppositeMapping )
     execute 'normal ' . a:mapping
-    let s:lastSearch = a:mapping
+    let s:lastSearch = [a:mapping, a:oppositeMapping]
 endfunction
 
 function! s:SearchRepeat( isOpposite )
-    execute 'normal ' . s:lastSearch
-endfunction
+    execute 'normal ' . s:lastSearch[ a:isOpposite ]
+endfunctio
 
 nnoremap <silent> n :<C-U>call <SID>SearchRepeat(0)<CR>
 nnoremap <silent> N :<C-U>call <SID>SearchRepeat(1)<CR>
 
-nmap <silent> gn :<C-U>call <SID>SearchWith("\<Plug>MarkSearchAnyNext")<CR>
-nmap <silent> gN :<C-U>call <SID>SearchWith("\<Plug>MarkSearchAnyPrev")<CR>
-nmap <silent> gm :<C-U>call <SID>SearchWith("\<Plug>MarkSearchCurrentNext")<CR>
-nmap <silent> gM :<C-U>call <SID>SearchWith("\<Plug>MarkSearchCurrentPrev")<CR>
+nmap <silent> gn :<C-U>call <SID>SearchWith("\<Plug>MarkSearchAnyNext", "\<Plug>MarkSearchAnyPrev")<CR>
+nmap <silent> gN :<C-U>call <SID>SearchWith("\<Plug>MarkSearchAnyPrev", "\<Plug>MarkSearchAnyNext")<CR>
+nmap <silent> gm :<C-U>call <SID>SearchWith("\<Plug>MarkSearchCurrentNext", "\<Plug>MarkSearchCurrentPrev")<CR>
+nmap <silent> gM :<C-U>call <SID>SearchWith("\<Plug>MarkSearchCurrentPrev", "\<Plug>MarkSearchCurrentNext")<CR>
 
 " vim: set sts=4 sw=4 noexpandtab ff=unix fdm=syntax :
 

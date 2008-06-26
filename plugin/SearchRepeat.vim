@@ -1,7 +1,16 @@
 " SearchRepeat.vim: Repeat the last type of search via n/N. 
 "
 " DESCRIPTION:
+"   Overloads the 'n' and 'N' commands so that custom searches (other than the
+"   default search via /, ?, [g]*, [g]#) can be repeated. A change of the
+"   current search pattern or activation of a custom search makes that search
+"   the new type of search to be repeated, until the search type is changed
+"   again. 
+"
 " USAGE:
+"   To change the search type back to plain normal search (without changing the
+"   search pattern), just type '/<Return>'. 
+"
 " INSTALLATION:
 " DEPENDENCIES:
 " CONFIGURATION:

@@ -31,12 +31,15 @@ function! s:SearchSet( mapping, oppositeMapping )
 endfunction
 
 function! s:SearchWith( mapping, oppositeMapping )
-    execute 'normal ' . a:mapping
+    " Note: Via :normal, hlsearch isn't turned on, and the 'E486: Pattern not
+    " found' causes an exception. feedkeys() fixes both problems. 
+    "execute 'normal ' . a:mapping
+    call feedkeys( a:mapping )
     let s:lastSearch = [a:mapping, a:oppositeMapping]
 endfunction
 
 function! s:SearchRepeat( isOpposite )
-    execute 'normal ' . s:lastSearch[ a:isOpposite ]
+    call feedkeys( s:lastSearch[ a:isOpposite ] )
 endfunction
 
 
@@ -52,8 +55,11 @@ nnoremap <silent> n :<C-U>call <SID>SearchRepeat(0)<CR>
 nnoremap <silent> N :<C-U>call <SID>SearchRepeat(1)<CR>
 
 " Capture changes in the search pattern. 
-nnoremap <silent> /  :<C-U>call <SID>SearchSet("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N")<CR>/
-nnoremap <silent> ?  :<C-U>call <SID>SearchSet("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N")<CR>?
+" Note: Use feedkeys('/','n')<CR> instead of a simple <CR>/ because the latter
+" doesn't immediately draw the search command-line, only when a pattern is
+" typed. 
+nnoremap <silent> /  :<C-U>call <SID>SearchSet("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N")<bar>call feedkeys('/','n')<CR>
+nnoremap <silent> ?  :<C-U>call <SID>SearchSet("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N")<bar>call feedkeys('?','n')<CR>
 nmap <silent>  *     :<C-U>call <SID>SearchSet("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N")<CR><Plug>SearchHighlightingStar
 nmap <silent> g*     :<C-U>call <SID>SearchSet("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N")<CR><Plug>SearchHighlightingGStar
 vmap <silent>  *     :<C-U>call <SID>SearchSet("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N")<CR>gv<Plug>SearchHighlightingStar
@@ -62,6 +68,8 @@ nnoremap <silent> gn :<C-U>call <SID>SearchWith("\<Plug>MarkSearchAnyNext", "\<P
 nnoremap <silent> gN :<C-U>call <SID>SearchWith("\<Plug>MarkSearchAnyPrev", "\<Plug>MarkSearchAnyNext")<CR>
 nnoremap <silent> gm :<C-U>call <SID>SearchWith("\<Plug>MarkSearchCurrentNext", "\<Plug>MarkSearchCurrentPrev")<CR>
 nnoremap <silent> gM :<C-U>call <SID>SearchWith("\<Plug>MarkSearchCurrentPrev", "\<Plug>MarkSearchCurrentNext")<CR>
+nmap <silent> #	     :<C-U>call <SID>SearchSet((empty(g:mwLastSearched) ? "\<Plug>MarkSearchAnyNext" : "\<Plug>MarkSearchCurrentNext"), (empty(g:mwLastSearched) ? "\<Plug>MarkSearchAnyPrev" : "\<Plug>MarkSearchCurrentPrev"))<CR><Plug>MarkSet
+vmap <silent> #	     :<C-U>call <SID>SearchSet((empty(g:mwLastSearched) ? "\<Plug>MarkSearchAnyNext" : "\<Plug>MarkSearchCurrentNext"), (empty(g:mwLastSearched) ? "\<Plug>MarkSearchAnyPrev" : "\<Plug>MarkSearchCurrentPrev"))<CR>gv<Plug>MarkSet
 
 " vim: set sts=4 sw=4 noexpandtab ff=unix fdm=syntax :
 

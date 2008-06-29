@@ -77,9 +77,9 @@ nnoremap <silent> N :<C-U>call <SID>SearchRepeat(1)<CR>
 " typed. 
 nnoremap <silent> /  :<C-U>call SearchRepeatSet("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N")<bar>call feedkeys('/','n')<CR>
 nnoremap <silent> ?  :<C-U>call SearchRepeatSet("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N")<bar>call feedkeys('?','n')<CR>
-nmap <silent>  *     :<C-U>call SearchRepeatSet("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N")<CR><Plug>SearchHighlightingStar
-nmap <silent> g*     :<C-U>call SearchRepeatSet("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N")<CR><Plug>SearchHighlightingGStar
-vmap <silent>  *     :<C-U>call SearchRepeatSet("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N")<CR>gv<Plug>SearchHighlightingStar
+nmap <silent>  *     <Plug>SearchHighlightingStar:<C-U>call SearchRepeatSet("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N")<CR>
+nmap <silent> g*     <Plug>SearchHighlightingGStar:<C-U>call SearchRepeatSet("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N")<CR>
+vmap <silent>  *     <Plug>SearchHighlightingStar:<C-U>call SearchRepeatSet("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N")<CR>
 
 " vim: set sts=4 sw=4 noexpandtab ff=unix fdm=syntax :
 

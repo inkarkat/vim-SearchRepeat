@@ -15,10 +15,17 @@
 " DEPENDENCIES:
 " CONFIGURATION:
 "   To set the current search type (in a custom search mapping):
-"	:call SearchRepeatSet("\<Plug>MyCustomSearchMapping", "\<Plug>MyCustomOppositeSearchMapping")
+"	:call SearchRepeatSet("\<Plug>MyCustomSearchMapping", "\<Plug>MyCustomOppositeSearchMapping", n)
+"
 "   To set the current search type (in a custom search mapping) and execute the
 "   (first, not the opposite) search mapping:
-"	:call SearchRepeatExecute("\<Plug>MyCustomSearchMapping", "\<Plug>MyCustomOppositeSearchMapping")
+"	:call SearchRepeatExecute("\<Plug>MyCustomSearchMapping", "\<Plug>MyCustomOppositeSearchMapping", n)
+"
+"   The third argument n specifies how the mappings deal with an optional
+"   [count] that is passed to the 'n' / 'N' commands:
+"	0 Doesn't handle count, single invocation only. 
+" 	1 Doesn't handle count itself, invoke search command multiple times. 
+" 	2 Handles count itself, pass it through. 
 "
 " LIMITATIONS:
 " ASSUMPTIONS:
@@ -31,6 +38,7 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS 
+"	002	30-Jun-2008	ENH: Handling optional [count] for searches. 
 "	001	27-Jun-2008	file creation
 
 " Avoid installing twice or when in unsupported VIM version. 
@@ -39,22 +47,38 @@ if exists('g:loaded_SearchRepeat') || (v:version < 700)
 endif
 let g:loaded_SearchRepeat = 1
 
-let s:lastSearch = ["\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N"]
+let s:lastSearch = ["\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N", 2]
 
-function! SearchRepeatSet( mapping, oppositeMapping )
-    let s:lastSearch = [a:mapping, a:oppositeMapping]
+function! SearchRepeatSet( mapping, oppositeMapping, howToHandleCount )
+    let s:lastSearch = [a:mapping, a:oppositeMapping, a:howToHandleCount]
 endfunction
 
-function! SearchRepeatExecute( mapping, oppositeMapping )
-    " Note: Via :normal, hlsearch isn't turned on, and the 'E486: Pattern not
-    " found' causes an exception. feedkeys() fixes both problems. 
-    "execute 'normal ' . a:mapping
-    call feedkeys( a:mapping )
-    let s:lastSearch = [a:mapping, a:oppositeMapping]
+function! SearchRepeatExecute( mapping, oppositeMapping, howToHandleCount )
+    let s:lastSearch = [a:mapping, a:oppositeMapping, a:howToHandleCount]
+    call s:SearchRepeat(0)
 endfunction
 
 function! s:SearchRepeat( isOpposite )
-    call feedkeys( s:lastSearch[ a:isOpposite ] )
+    let l:searchCommand = s:lastSearch[ a:isOpposite ]
+
+    if v:count > 0
+	if s:lastSearch[2] == 0
+	    " Doesn't handle count, single invocation only. 
+	elseif s:lastSearch[2] == 1
+	    " Doesn't handle count itself, invoke search command multiple times. 
+	    let l:searchCommand = repeat( l:searchCommand, v:count )
+	elseif s:lastSearch[2] == 2
+	    " Handles count itself, pass it through. 
+	    let l:searchCommand = v:count . l:searchCommand
+	else
+	    throw 'ASSERT: Invalid value for howToHandleCount!'
+	endif
+    endif
+
+    " Note: Via :normal, hlsearch isn't turned on, and the 'E486: Pattern not
+    " found' causes an exception. feedkeys() fixes both problems. 
+    "execute 'normal'  l:searchCommand 
+    call feedkeys( l:searchCommand )
 endfunction
 
 
@@ -75,11 +99,11 @@ nnoremap <silent> N :<C-U>call <SID>SearchRepeat(1)<CR>
 " Note: Use feedkeys('/','n')<CR> instead of a simple <CR>/ because the latter
 " doesn't immediately draw the search command-line, only when a pattern is
 " typed. 
-nnoremap <silent> /  :<C-U>call SearchRepeatSet("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N")<bar>call feedkeys('/','n')<CR>
-nnoremap <silent> ?  :<C-U>call SearchRepeatSet("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N")<bar>call feedkeys('?','n')<CR>
-nmap <silent>  *     <Plug>SearchHighlightingStar:<C-U>call SearchRepeatSet("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N")<CR>
-nmap <silent> g*     <Plug>SearchHighlightingGStar:<C-U>call SearchRepeatSet("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N")<CR>
-vmap <silent>  *     <Plug>SearchHighlightingStar:<C-U>call SearchRepeatSet("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N")<CR>
+nnoremap <silent> /  :<C-U>call SearchRepeatSet("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N", 2)<bar>call feedkeys('/','n')<CR>
+nnoremap <silent> ?  :<C-U>call SearchRepeatSet("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N", 2)<bar>call feedkeys('?','n')<CR>
+nmap <silent>  *     <Plug>SearchHighlightingStar:<C-U>call SearchRepeatSet("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N", 2)<CR>
+nmap <silent> g*     <Plug>SearchHighlightingGStar:<C-U>call SearchRepeatSet("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N", 2)<CR>
+vmap <silent>  *     <Plug>SearchHighlightingStar:<C-U>call SearchRepeatSet("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N", 2)<CR>
 
 " vim: set sts=4 sw=4 noexpandtab ff=unix fdm=syntax :
 

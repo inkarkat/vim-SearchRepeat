@@ -38,6 +38,8 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS 
+"	003	19-Jul-2008	ENH: Added basic help and registration via
+"				'gn' mapping and SearchRepeatRegister(). 
 "	002	30-Jun-2008	ENH: Handling optional [count] for searches. 
 "	001	27-Jun-2008	file creation
 
@@ -104,6 +106,25 @@ nnoremap <silent> ?  :<C-U>call SearchRepeatSet("\<Plug>SearchRepeat_n", "\<Plug
 nmap <silent>  *     <Plug>SearchHighlightingStar:<C-U>call SearchRepeatSet("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N", 2)<CR>
 nmap <silent> g*     <Plug>SearchHighlightingGStar:<C-U>call SearchRepeatSet("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N", 2)<CR>
 vmap <silent>  *     <Plug>SearchHighlightingStar:<C-U>call SearchRepeatSet("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N", 2)<CR>
+
+
+
+"- registration and context help ----------------------------------------------
+let s:registrations = []
+function! SearchRepeatRegister( mapping, keysToActivate, keysToReActivate, helptext )
+    call add( s:registrations, [ a:keysToReActivate, a:keysToActivate, a:mapping, a:helptext ] )
+endfunction
+
+function! s:SearchRepeatHelp()
+    for l:r in sort(s:registrations)
+	if r[2] == s:lastSearch[0]
+	    echohl ModeMsg
+	endif
+	echo r[0] . "\t" . r[1] . "\t" . r[3]
+	echohl NONE
+    endfor
+endfunction
+nnoremap <silent> gn :<C-U>call <SID>SearchRepeatHelp()<CR>
 
 " vim: set sts=4 sw=4 noexpandtab ff=unix fdm=syntax :
 

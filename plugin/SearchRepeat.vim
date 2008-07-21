@@ -124,7 +124,10 @@ function! s:SearchRepeatHelp()
 	echohl NONE
     endfor
 endfunction
-nnoremap <silent> gn :<C-U>call <SID>SearchRepeatHelp()<CR>
+nnoremap <Plug>SearchRepeatHelp :<C-U>call <SID>SearchRepeatHelp()<CR>
+if ! hasmapto('<Plug>SearchRepeatHelp', 'n')
+    nmap <silent> gn <Plug>SearchRepeatHelp
+endif
 
 " vim: set sts=4 sw=4 noexpandtab ff=unix fdm=syntax :
 

@@ -38,6 +38,9 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS 
+"	004	22-Jul-2008	Changed s:registrations to dictionary to avoid
+"				duplicates when re-registering (e.g. when
+"				reloading plugin). 
 "	003	19-Jul-2008	ENH: Added basic help and registration via
 "				'gn' mapping and SearchRepeatRegister(). 
 "	002	30-Jun-2008	ENH: Handling optional [count] for searches. 
@@ -110,17 +113,28 @@ vmap <silent>  *     <Plug>SearchHighlightingStar:<C-U>call SearchRepeatSet("\<P
 
 
 "- registration and context help ----------------------------------------------
-let s:registrations = []
-function! SearchRepeatRegister( mapping, keysToActivate, keysToReActivate, helptext )
-    call add( s:registrations, [ a:keysToReActivate, a:keysToActivate, a:mapping, a:helptext ] )
+let s:registrations = {}
+function! SearchRepeatRegister( mapping, keysToActivate, keysToReactivate, helptext )
+    let s:registrations[ a:mapping ] = [ a:keysToActivate, a:keysToReactivate, a:helptext ]
 endfunction
 
+function! s:SortByReactivation(i1, i2)
+    if a:i1[1][1] ==# a:i2[1][1]
+	return 0
+    elseif a:i1[1][1] ==? a:i2[1][1]
+	" If only differ in case, choose lowercase before uppercase. 
+	return a:i1[1][1] < a:i2[1][1] ? 1 : -1
+    else
+	" ASCII-ascending. 
+	return a:i1[1][1] > a:i2[1][1] ? 1 : -1
+    endif
+endfunction
 function! s:SearchRepeatHelp()
-    for l:r in sort(s:registrations)
-	if r[2] == s:lastSearch[0]
+    for [l:mapping, l:info] in sort( items(s:registrations), 's:SortByReactivation' )
+	if l:mapping == s:lastSearch[0]
 	    echohl ModeMsg
 	endif
-	echo r[0] . "\t" . r[1] . "\t" . r[3]
+	echo l:info[1] . "\t" . l:info[0] . "\t" . l:info[2]
 	echohl NONE
     endfor
 endfunction

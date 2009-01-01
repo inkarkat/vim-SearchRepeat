@@ -15,17 +15,23 @@
 " DEPENDENCIES:
 " CONFIGURATION:
 "   To set the current search type (in a custom search mapping):
-"	:call SearchRepeatSet("\<Plug>MyCustomSearchMapping", "\<Plug>MyCustomOppositeSearchMapping", n)
+"	:call SearchRepeat#Set("\<Plug>MyCustomSearchMapping", "\<Plug>MyCustomOppositeSearchMapping", n)
 "
 "   To set the current search type (in a custom search mapping) and execute the
 "   (first, not the opposite) search mapping:
-"	:call SearchRepeatExecute("\<Plug>MyCustomSearchMapping", "\<Plug>MyCustomOppositeSearchMapping", n)
+"	:call SearchRepeat#Execute("\<Plug>MyCustomSearchMapping", "\<Plug>MyCustomOppositeSearchMapping", n)
 "
 "   The third argument n specifies how the mappings deal with an optional
 "   [count] that is passed to the 'n' / 'N' commands:
 "	0 Doesn't handle count, single invocation only. 
 " 	1 Doesn't handle count itself, invoke search command multiple times. 
 " 	2 Handles count itself, pass it through. 
+"
+"   Note: When typed, [*#nN] open the fold at the search result, but inside a
+"   mapping or :normal this must be done explicitly via 'zv'. This plugin does
+"   nothing with folds when repeating searches; you have to deal with closed
+"   folds yourself (e.g. when you search() to somewhere, do a ':normal! zv' to
+"   open the fold at the match). 
 "
 " LIMITATIONS:
 " ASSUMPTIONS:
@@ -38,6 +44,7 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS 
+"	005	05-Aug-2008	Split off autoload functions from plugin script. 
 "	004	22-Jul-2008	Changed s:registrations to dictionary to avoid
 "				duplicates when re-registering (e.g. when
 "				reloading plugin). 
@@ -52,42 +59,6 @@ if exists('g:loaded_SearchRepeat') || (v:version < 700)
 endif
 let g:loaded_SearchRepeat = 1
 
-let s:lastSearch = ["\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N", 2]
-
-function! SearchRepeatSet( mapping, oppositeMapping, howToHandleCount )
-    let s:lastSearch = [a:mapping, a:oppositeMapping, a:howToHandleCount]
-endfunction
-
-function! SearchRepeatExecute( mapping, oppositeMapping, howToHandleCount )
-    let s:lastSearch = [a:mapping, a:oppositeMapping, a:howToHandleCount]
-    call s:SearchRepeat(0)
-endfunction
-
-function! s:SearchRepeat( isOpposite )
-    let l:searchCommand = s:lastSearch[ a:isOpposite ]
-
-    if v:count > 0
-	if s:lastSearch[2] == 0
-	    " Doesn't handle count, single invocation only. 
-	elseif s:lastSearch[2] == 1
-	    " Doesn't handle count itself, invoke search command multiple times. 
-	    let l:searchCommand = repeat( l:searchCommand, v:count )
-	elseif s:lastSearch[2] == 2
-	    " Handles count itself, pass it through. 
-	    let l:searchCommand = v:count . l:searchCommand
-	else
-	    throw 'ASSERT: Invalid value for howToHandleCount!'
-	endif
-    endif
-
-    " Note: Via :normal, hlsearch isn't turned on, and the 'E486: Pattern not
-    " found' causes an exception. feedkeys() fixes both problems. 
-    "execute 'normal'  l:searchCommand 
-    call feedkeys( l:searchCommand )
-endfunction
-
-
-
 " Note: The mappings cannot be executed with ':normal!', so that the <Plug>
 " mappings apply. The [nN] commands must be executed without remapping, or we
 " end up in endless recursion. Thus, define noremapping mappings for [nN]. 
@@ -96,52 +67,27 @@ endfunction
 nnoremap <Plug>SearchRepeat_n nzv
 nnoremap <Plug>SearchRepeat_N Nzv
 
-" n/N now repeat the last type of search. 
-nnoremap <silent> n :<C-U>call <SID>SearchRepeat(0)<CR>
-nnoremap <silent> N :<C-U>call <SID>SearchRepeat(1)<CR>
+" n/N			Repeat the last type of search. 
+nnoremap <silent> n :<C-U>call SearchRepeat#Repeat(0)<CR>
+nnoremap <silent> N :<C-U>call SearchRepeat#Repeat(1)<CR>
 
 " Capture changes in the search pattern. 
 " Note: Use feedkeys('/','n')<CR> instead of a simple <CR>/ because the latter
 " doesn't immediately draw the search command-line, only when a pattern is
 " typed. 
-nnoremap <silent> /  :<C-U>call SearchRepeatSet("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N", 2)<bar>call feedkeys('/','n')<CR>
-nnoremap <silent> ?  :<C-U>call SearchRepeatSet("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N", 2)<bar>call feedkeys('?','n')<CR>
-nmap <silent>  *     <Plug>SearchHighlightingStar:<C-U>call SearchRepeatSet("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N", 2)<CR>
-nmap <silent> g*     <Plug>SearchHighlightingGStar:<C-U>call SearchRepeatSet("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N", 2)<CR>
-vmap <silent>  *     <Plug>SearchHighlightingStar:<C-U>call SearchRepeatSet("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N", 2)<CR>
+nnoremap <silent> /  :<C-U>call SearchRepeat#Set("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N", 2)<Bar>call feedkeys('/','n')<CR>
+nnoremap <silent> ?  :<C-U>call SearchRepeat#Set("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N", 2)<Bar>call feedkeys('?','n')<CR>
+nmap <silent>  *     <Plug>SearchHighlightingStar:<C-U>call SearchRepeat#Set("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N", 2)<CR>
+nmap <silent> g*     <Plug>SearchHighlightingGStar:<C-U>call SearchRepeat#Set("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N", 2)<CR>
+vmap <silent>  *     <Plug>SearchHighlightingStar:<C-U>call SearchRepeat#Set("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N", 2)<CR>
 
 
 
-"- registration and context help ----------------------------------------------
-let s:registrations = {}
-function! SearchRepeatRegister( mapping, keysToActivate, keysToReactivate, helptext )
-    let s:registrations[ a:mapping ] = [ a:keysToActivate, a:keysToReactivate, a:helptext ]
-endfunction
-
-function! s:SortByReactivation(i1, i2)
-    if a:i1[1][1] ==# a:i2[1][1]
-	return 0
-    elseif a:i1[1][1] ==? a:i2[1][1]
-	" If only differ in case, choose lowercase before uppercase. 
-	return a:i1[1][1] < a:i2[1][1] ? 1 : -1
-    else
-	" ASCII-ascending. 
-	return a:i1[1][1] > a:i2[1][1] ? 1 : -1
-    endif
-endfunction
-function! s:SearchRepeatHelp()
-    for [l:mapping, l:info] in sort( items(s:registrations), 's:SortByReactivation' )
-	if l:mapping == s:lastSearch[0]
-	    echohl ModeMsg
-	endif
-	echo l:info[1] . "\t" . l:info[0] . "\t" . l:info[2]
-	echohl NONE
-    endfor
-endfunction
-nnoremap <Plug>SearchRepeatHelp :<C-U>call <SID>SearchRepeatHelp()<CR>
+" gn			Show all registered search types, keys to (re-)activate,
+"			and the currently active search type. 
+nnoremap <Plug>SearchRepeatHelp :<C-U>call SearchRepeat#Help()<CR>
 if ! hasmapto('<Plug>SearchRepeatHelp', 'n')
     nmap <silent> gn <Plug>SearchRepeatHelp
 endif
 
 " vim: set sts=4 sw=4 noexpandtab ff=unix fdm=syntax :
-

@@ -6,17 +6,23 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS 
+"	003	02-Feb-2009	Fixed broken macro playback of n and N
+"				repetition mappings by using :normal for the
+"				mapping, and explicitly setting 'hlsearch' via
+"				feedkeys(). As this setting isn't implicit in
+"				the repeated commands, clients can opt out of
+"				it. 
 "	002	07-Aug-2008	BF: Need to sort twice.
 "	001	05-Aug-2008	Split off autoload functions from plugin script. 
 
 let s:lastSearch = ["\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N", 2]
 
-function! SearchRepeat#Set( mapping, oppositeMapping, howToHandleCount )
-    let s:lastSearch = [a:mapping, a:oppositeMapping, a:howToHandleCount]
+function! SearchRepeat#Set( mapping, oppositeMapping, howToHandleCount, ... )
+    let s:lastSearch = [a:mapping, a:oppositeMapping, a:howToHandleCount, (a:0 ? a:1 : {})]
 endfunction
 
-function! SearchRepeat#Execute( mapping, oppositeMapping, howToHandleCount )
-    let s:lastSearch = [a:mapping, a:oppositeMapping, a:howToHandleCount]
+function! SearchRepeat#Execute( mapping, oppositeMapping, howToHandleCount, ... )
+    let s:lastSearch = [a:mapping, a:oppositeMapping, a:howToHandleCount, (a:0 ? a:1 : {})]
     call SearchRepeat#Repeat(0)
 endfunction
 
@@ -37,10 +43,25 @@ function! SearchRepeat#Repeat( isOpposite )
 	endif
     endif
 
-    " Note: Via :normal, hlsearch isn't turned on, and the 'E486: Pattern not
-    " found' causes an exception. feedkeys() fixes both problems. 
-    "execute 'normal'  l:searchCommand 
-    call feedkeys( l:searchCommand )
+    " Note: Via :normal, 'hlsearch' isn't turned on, but we also cannot use
+    " feedkeys(), which would break macro playback. Thus, we use feedkeys() to
+    " turn on 'hlsearch' (via a <silent> mapping, so it isn't echoed), unless
+    " the current search type explicitly opts out of this. 
+    if get(s:lastSearch[3], 'hlsearch', 1)
+	call feedkeys( "\<Plug>SearchRepeat_hlsearch" )
+    endif
+
+    try
+	execute 'normal'  l:searchCommand 
+    catch /^Vim\%((\a\+)\)\=:E/
+	echohl ErrorMsg
+	" v:exception contains what is normally in v:errmsg, but with extra
+	" exception source info prepended, which we cut away. 
+	let v:errmsg = substitute(v:exception, '^Vim\%((\a\+)\)\=:', '', '')
+	echomsg v:errmsg
+	echohl NONE
+    endtry
+    "call feedkeys( l:searchCommand )
 endfunction
 
 

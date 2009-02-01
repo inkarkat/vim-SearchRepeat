@@ -6,6 +6,7 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS 
+"	002	07-Aug-2008	BF: Need to sort twice.
 "	001	05-Aug-2008	Split off autoload functions from plugin script. 
 
 let s:lastSearch = ["\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N", 2]
@@ -51,18 +52,26 @@ function! SearchRepeat#Register( mapping, keysToActivate, keysToReactivate, help
 endfunction
 
 function! s:SortByReactivation(i1, i2)
-    if a:i1[1][1] ==# a:i2[1][1]
+    let s1 = a:i1[1][1]
+    let s2 = a:i2[1][1]
+    if s1 ==# s2
 	return 0
-    elseif a:i1[1][1] ==? a:i2[1][1]
+    elseif s1 ==? s2
 	" If only differ in case, choose lowercase before uppercase. 
-	return a:i1[1][1] < a:i2[1][1] ? 1 : -1
+	return s1 < s2 ? 1 : -1
     else
 	" ASCII-ascending. 
-	return a:i1[1][1] > a:i2[1][1] ? 1 : -1
+	return s1 > s2 ? 1 : -1
     endif
 endfunction
 function! SearchRepeat#Help()
-    for [l:mapping, l:info] in sort( items(s:registrations), 's:SortByReactivation' )
+    echohl Title
+    echo "react.\tact.\tdescription"
+    echohl NONE
+
+    " Since our custom sort function treats both 'abcd' and 'aAbB' as sorted, we
+    " need to sort twice. 
+    for [l:mapping, l:info] in sort( sort( items(s:registrations), 's:SortByReactivation' ), 's:SortByReactivation')
 	if l:mapping == s:lastSearch[0]
 	    echohl ModeMsg
 	endif

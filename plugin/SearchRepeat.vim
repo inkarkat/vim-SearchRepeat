@@ -27,6 +27,14 @@
 " 	1 Doesn't handle count itself, invoke search command multiple times. 
 " 	2 Handles count itself, pass it through. 
 "
+"   An optional fourth argument supplies additional configuration in a
+"   dictionary; these key names are supported:
+"	- 'hlsearch' (type Boolean, default 1)
+"	  Flag whether to re-enable 'hlsearch' during repetition (which is not
+"	  done automatically because the repeated mapping is executed from
+"	  within a function, and not via feedkeys()). Set to 0 if your search
+"	  mapping has nothing to do with the built-in search functionality. 
+"
 "   Note: When typed, [*#nN] open the fold at the search result, but inside a
 "   mapping or :normal this must be done explicitly via 'zv'. This plugin does
 "   nothing with folds when repeating searches; you have to deal with closed
@@ -44,6 +52,14 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS 
+"	007	02-Feb-2009	Fixed broken macro playback of n and N
+"				repetition mappings by using :normal for the
+"				mapping, and explicitly setting 'hlsearch' via
+"				feedkeys(). As this setting isn't implicit in
+"				the repeated commands, clients can opt out of
+"				it. 
+"	006	02-Jan-2009	Fixed broken macro playback of / and ? mappings
+"				via feedkeys() trick. 
 "	005	05-Aug-2008	Split off autoload functions from plugin script. 
 "	004	22-Jul-2008	Changed s:registrations to dictionary to avoid
 "				duplicates when re-registering (e.g. when
@@ -67,16 +83,31 @@ let g:loaded_SearchRepeat = 1
 nnoremap <Plug>SearchRepeat_n nzv
 nnoremap <Plug>SearchRepeat_N Nzv
 
+" During repetition, 'hlsearch' must be explicitly turned on, but without
+" echoing of the command. This is the <silent> mapping that does this inside
+" SearchRepeat#Repeat(). 
+nnoremap <silent> <Plug>SearchRepeat_hlsearch :<C-U>if &hlsearch<Bar>set hlsearch<Bar>endif<CR>
+
 " n/N			Repeat the last type of search. 
 nnoremap <silent> n :<C-U>call SearchRepeat#Repeat(0)<CR>
 nnoremap <silent> N :<C-U>call SearchRepeat#Repeat(1)<CR>
 
 " Capture changes in the search pattern. 
-" Note: Use feedkeys('/','n')<CR> instead of a simple <CR>/ because the latter
-" doesn't immediately draw the search command-line, only when a pattern is
-" typed. 
-nnoremap <silent> /  :<C-U>call SearchRepeat#Set("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N", 2)<Bar>call feedkeys('/','n')<CR>
-nnoremap <silent> ?  :<C-U>call SearchRepeat#Set("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N", 2)<Bar>call feedkeys('?','n')<CR>
+"
+" Note: A simple <CR>/ doesn't immediately draw the search command-line, only
+" when a pattern is typed. A feedkeys('/','n')<CR> instead shows the search
+" command-line, but breaks macro playback. What does work is a combination
+" trick: Use <CR>/ at the end of the mapping, but also force a search
+" command-line update via feedkeys(" \<BS>",'n'). The sent keys add and
+" immediately erase a <Space> search pattern; during macro playback, these keys
+" are queued as harmless (noremapped) normal mode commands which neutralize
+" themselves after the macro execution finishes. 
+"
+" In the standard search, the two directions never swap (it's always n/N, never
+" N/n), because the search direction is determined by the use of the / or ?
+" commands, and handled internally in VIM. 
+nnoremap <silent> /  :<C-U>call SearchRepeat#Set("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N", 2)<Bar>call feedkeys(" \<lt>BS>", 'n')<CR>/
+nnoremap <silent> ?  :<C-U>call SearchRepeat#Set("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N", 2)<Bar>call feedkeys(" \<lt>BS>", 'n')<CR>?
 nmap <silent>  *     <Plug>SearchHighlightingStar:<C-U>call SearchRepeat#Set("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N", 2)<CR>
 nmap <silent> g*     <Plug>SearchHighlightingGStar:<C-U>call SearchRepeat#Set("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N", 2)<CR>
 vmap <silent>  *     <Plug>SearchHighlightingStar:<C-U>call SearchRepeat#Set("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N", 2)<CR>

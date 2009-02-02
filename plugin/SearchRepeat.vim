@@ -92,6 +92,8 @@ nnoremap <silent> <Plug>SearchRepeat_hlsearch :<C-U>if &hlsearch<Bar>set hlsearc
 nnoremap <silent> n :<C-U>call SearchRepeat#Repeat(0)<CR>
 nnoremap <silent> N :<C-U>call SearchRepeat#Repeat(1)<CR>
 
+execute 'nmap <silent> <Plug>SearchRepeat_Star ' . (empty(maparg('*', 'n')) ? '*' : maparg('*', 'n'))
+
 " Capture changes in the search pattern. 
 "
 " Note: A simple <CR>/ doesn't immediately draw the search command-line, only
@@ -108,16 +110,9 @@ nnoremap <silent> N :<C-U>call SearchRepeat#Repeat(1)<CR>
 " commands, and handled internally in VIM. 
 nnoremap <silent> /  :<C-U>call SearchRepeat#Set("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N", 2)<Bar>call feedkeys(" \<lt>BS>", 'n')<CR>/
 nnoremap <silent> ?  :<C-U>call SearchRepeat#Set("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N", 2)<Bar>call feedkeys(" \<lt>BS>", 'n')<CR>?
-if empty(maparg('<Plug>SearchHighlightingStar', 'n'))
-    nmap <silent>  *     *:<C-U>call SearchRepeat#Set("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N", 2)<CR>
-    nmap <silent> g*    g*:<C-U>call SearchRepeat#Set("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N", 2)<CR>
-    vmap <silent>  *     *:<C-U>call SearchRepeat#Set("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N", 2)<CR>
-else
-    " Integration with SearchHighlighting.vim. 
-    nmap <silent>  *     <Plug>SearchHighlightingStar:<C-U>call SearchRepeat#Set("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N", 2)<CR>
-    nmap <silent> g*     <Plug>SearchHighlightingGStar:<C-U>call SearchRepeat#Set("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N", 2)<CR>
-    vmap <silent>  *     <Plug>SearchHighlightingStar:<C-U>call SearchRepeat#Set("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N", 2)<CR>
-endif
+nmap <silent>  *     <Plug>SearchRepeat_Star:<C-U>call SearchRepeat#Set("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N", 2)<CR>
+nmap <silent> g*     <Plug>SearchRepeat_GStar:<C-U>call SearchRepeat#Set("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N", 2)<CR>
+vmap <silent>  *     <Plug>SearchRepeat_Star:<C-U>call SearchRepeat#Set("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N", 2)<CR>
 
 
 

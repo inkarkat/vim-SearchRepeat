@@ -12,6 +12,9 @@
 "				feedkeys(). As this setting isn't implicit in
 "				the repeated commands, clients can opt out of
 "				it. 
+"				BF: Sorting twice was wrong, but luckily showed
+"				the correct results. Must simply sort
+"				ASCII-ascending *while ignoring case*. 
 "	002	07-Aug-2008	BF: Need to sort twice.
 "	001	05-Aug-2008	Split off autoload functions from plugin script. 
 
@@ -81,8 +84,8 @@ function! s:SortByReactivation(i1, i2)
 	" If only differ in case, choose lowercase before uppercase. 
 	return s1 < s2 ? 1 : -1
     else
-	" ASCII-ascending. 
-	return s1 > s2 ? 1 : -1
+	" ASCII-ascending while ignoring case. 
+	return tolower(s1) > tolower(s2) ? 1 : -1
     endif
 endfunction
 function! SearchRepeat#Help()
@@ -92,7 +95,7 @@ function! SearchRepeat#Help()
 
     " Since our custom sort function treats both 'abcd' and 'aAbB' as sorted, we
     " need to sort twice. 
-    for [l:mapping, l:info] in sort( sort( items(s:registrations), 's:SortByReactivation' ), 's:SortByReactivation')
+    for [l:mapping, l:info] in sort( items(s:registrations), 's:SortByReactivation' )
 	if l:mapping == s:lastSearch[0]
 	    echohl ModeMsg
 	endif

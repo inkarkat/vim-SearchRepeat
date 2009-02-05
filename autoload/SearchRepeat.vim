@@ -6,6 +6,9 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS 
+"	004	04-Feb-2009	BF: Only turn on 'hlsearch' if no VIM error
+"				occurred to avoid clearing of long error message
+"				with Hit-Enter. 
 "	003	02-Feb-2009	Fixed broken macro playback of n and N
 "				repetition mappings by using :normal for the
 "				mapping, and explicitly setting 'hlsearch' via
@@ -46,16 +49,21 @@ function! SearchRepeat#Repeat( isOpposite )
 	endif
     endif
 
-    " Note: Via :normal, 'hlsearch' isn't turned on, but we also cannot use
-    " feedkeys(), which would break macro playback. Thus, we use feedkeys() to
-    " turn on 'hlsearch' (via a <silent> mapping, so it isn't echoed), unless
-    " the current search type explicitly opts out of this. 
-    if get(s:lastSearch[3], 'hlsearch', 1)
-	call feedkeys( "\<Plug>SearchRepeat_hlsearch" )
-    endif
-
     try
 	execute 'normal'  l:searchCommand 
+
+	" Note: Via :normal, 'hlsearch' isn't turned on, but we also cannot use
+	" feedkeys(), which would break macro playback. Thus, we use feedkeys() to
+	" turn on 'hlsearch' (via a <silent> mapping, so it isn't echoed), unless
+	" the current search type explicitly opts out of this. 
+	" Note: Only turn on 'hlsearch' if no VIM error occurred (like "E486:
+	" Pattern not found"); otherwise, the <Plug>SearchRepeat_hlsearch
+	" mapping (though <silent>) would clear a long error message which
+	" causes the Hit-Enter prompt. In case of a search error, there's
+	" nothing to highlight, anyway. 
+	if get(s:lastSearch[3], 'hlsearch', 1)
+	    call feedkeys( "\<Plug>SearchRepeat_hlsearch" )
+	endif
     catch /^Vim\%((\a\+)\)\=:E/
 	echohl ErrorMsg
 	" v:exception contains what is normally in v:errmsg, but with extra

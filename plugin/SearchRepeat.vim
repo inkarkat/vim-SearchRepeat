@@ -52,6 +52,9 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS 
+"	008	03-Feb-2009	Removed hardcoded dependency to
+"				SearchHighlighting.vim by checking (and keeping)
+"				existing mappings of [g]* commands. 
 "	007	02-Feb-2009	Fixed broken macro playback of n and N
 "				repetition mappings by using :normal for the
 "				mapping, and explicitly setting 'hlsearch' via
@@ -92,7 +95,20 @@ nnoremap <silent> <Plug>SearchRepeat_hlsearch :<C-U>if &hlsearch<Bar>set hlsearc
 nnoremap <silent> n :<C-U>call SearchRepeat#Repeat(0)<CR>
 nnoremap <silent> N :<C-U>call SearchRepeat#Repeat(1)<CR>
 
-execute 'nmap <silent> <Plug>SearchRepeat_Star ' . (empty(maparg('*', 'n')) ? '*' : maparg('*', 'n'))
+" The user might have remapped the [g]* commands (e.g. by using the
+" SearchHighlighting.vim plugin). We preserve these mappings (assuming they're
+" 'noremap). 
+" Note: Must check for existing mapping to avoid recursive mapping after script
+" reload. 
+if empty(maparg('<Plug>SearchRepeat_Star', 'n'))
+    execute 'nmap <silent> <Plug>SearchRepeat_Star ' . (empty(maparg('*', 'n')) ? '*' : maparg('*', 'n'))
+endif
+if empty(maparg('<Plug>SearchRepeat_GStar', 'n'))
+    execute 'nmap <silent> <Plug>SearchRepeat_GStar ' . (empty(maparg('*', 'n')) ? 'g*' : maparg('g*', 'n'))
+endif
+if empty(maparg('<Plug>SearchRepeat_Star', 'v'))
+    execute 'vmap <silent> <Plug>SearchRepeat_Star ' . (empty(maparg('*', 'v')) ? '*' : maparg('*', 'v'))
+endif
 
 " Capture changes in the search pattern. 
 "

@@ -52,6 +52,9 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS 
+"	009	28-Feb-2009	BF: [g]* mappings added ":call
+"				SearchRepeat#Set(...) to command history. Now
+"				deleting the added entry. 
 "	008	03-Feb-2009	Removed hardcoded dependency to
 "				SearchHighlighting.vim by checking (and keeping)
 "				existing mappings of [g]* commands. 
@@ -126,9 +129,9 @@ endif
 " commands, and handled internally in VIM. 
 nnoremap <silent> /  :<C-U>call SearchRepeat#Set("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N", 2)<Bar>call feedkeys(" \<lt>BS>", 'n')<CR>/
 nnoremap <silent> ?  :<C-U>call SearchRepeat#Set("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N", 2)<Bar>call feedkeys(" \<lt>BS>", 'n')<CR>?
-nmap <silent>  *     <Plug>SearchRepeat_Star:<C-U>call SearchRepeat#Set("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N", 2)<CR>
-nmap <silent> g*     <Plug>SearchRepeat_GStar:<C-U>call SearchRepeat#Set("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N", 2)<CR>
-vmap <silent>  *     <Plug>SearchRepeat_Star:<C-U>call SearchRepeat#Set("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N", 2)<CR>
+nmap <silent>  *     <Plug>SearchRepeat_Star:<C-U>call SearchRepeat#Set("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N", 2)<Bar>call histdel('cmd', -1)<CR>
+nmap <silent> g*     <Plug>SearchRepeat_GStar:<C-U>call SearchRepeat#Set("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N", 2)<Bar>call histdel('cmd', -1)<CR>
+vmap <silent>  *     <Plug>SearchRepeat_Star:<C-U>call SearchRepeat#Set("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N", 2)<Bar>call histdel('cmd', -1)<CR>
 
 
 

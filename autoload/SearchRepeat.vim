@@ -6,6 +6,8 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS 
+"	005	06-Feb-2009	BF: Forgot s:lastSearch[3] initialization in one
+"				place. 
 "	004	04-Feb-2009	BF: Only turn on 'hlsearch' if no VIM error
 "				occurred to avoid clearing of long error message
 "				with Hit-Enter. 
@@ -20,8 +22,9 @@
 "				ASCII-ascending *while ignoring case*. 
 "	002	07-Aug-2008	BF: Need to sort twice.
 "	001	05-Aug-2008	Split off autoload functions from plugin script. 
+"				file creation
 
-let s:lastSearch = ["\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N", 2]
+let s:lastSearch = ["\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N", 2, {}]
 
 function! SearchRepeat#Set( mapping, oppositeMapping, howToHandleCount, ... )
     let s:lastSearch = [a:mapping, a:oppositeMapping, a:howToHandleCount, (a:0 ? a:1 : {})]
@@ -70,7 +73,7 @@ function! SearchRepeat#Repeat( isOpposite )
 	" exception source info prepended, which we cut away. 
 	let v:errmsg = substitute(v:exception, '^Vim\%((\a\+)\)\=:', '', '')
 	echomsg v:errmsg
-	echohl NONE
+	echohl None
     endtry
     "call feedkeys( l:searchCommand )
 endfunction
@@ -99,7 +102,7 @@ endfunction
 function! SearchRepeat#Help()
     echohl Title
     echo "react.\tact.\tdescription"
-    echohl NONE
+    echohl None
 
     " Since our custom sort function treats both 'abcd' and 'aAbB' as sorted, we
     " need to sort twice. 
@@ -108,7 +111,7 @@ function! SearchRepeat#Help()
 	    echohl ModeMsg
 	endif
 	echo l:info[1] . "\t" . l:info[0] . "\t" . l:info[2]
-	echohl NONE
+	echohl None
     endfor
 endfunction
 

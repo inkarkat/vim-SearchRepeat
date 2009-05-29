@@ -24,8 +24,10 @@
 "   The third argument n specifies how the mappings deal with an optional
 "   [count] that is passed to the 'n' / 'N' commands:
 "	0 Doesn't handle count, single invocation only. 
-" 	1 Doesn't handle count itself, invoke search command multiple times. 
-" 	2 Handles count itself, pass it through. 
+"	  No count is prepended to the search mapping, which is invoked only
+"	  once. (But the count itself is still available through v:count.) 
+" 	1 Doesn't handle count itself, invoke search mapping multiple times. 
+" 	2 Handles count itself, prepend count before search mapping. 
 "
 "   An optional fourth argument supplies additional configuration in a
 "   dictionary; these key names are supported:

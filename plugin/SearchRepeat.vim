@@ -54,6 +54,10 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS 
+"	010	30-May-2009	Using nnoremap for SearchRepeat integration
+"				(through <SID>SearchRepeat_Star, not <Plug>...
+"				mappings); otherwise, the command would be
+"				listed in FuzzyFinderMruCmd. 
 "	009	28-Feb-2009	BF: [g]* mappings added ":call
 "				SearchRepeat#Set(...) to command history. Now
 "				deleting the added entry. 
@@ -77,7 +81,7 @@
 "	002	30-Jun-2008	ENH: Handling optional [count] for searches. 
 "	001	27-Jun-2008	file creation
 
-" Avoid installing twice or when in unsupported VIM version. 
+" Avoid installing twice or when in unsupported Vim version. 
 if exists('g:loaded_SearchRepeat') || (v:version < 700)
     finish
 endif
@@ -105,14 +109,14 @@ nnoremap <silent> N :<C-U>call SearchRepeat#Repeat(1)<CR>
 " 'noremap). 
 " Note: Must check for existing mapping to avoid recursive mapping after script
 " reload. 
-if empty(maparg('<Plug>SearchRepeat_Star', 'n'))
-    execute 'nmap <silent> <Plug>SearchRepeat_Star ' . (empty(maparg('*', 'n')) ? '*' : maparg('*', 'n'))
+if empty(maparg('<SID>SearchRepeat_Star', 'n'))
+    execute 'nmap <silent> <SID>SearchRepeat_Star ' . (empty(maparg('*', 'n')) ? '*' : maparg('*', 'n'))
 endif
-if empty(maparg('<Plug>SearchRepeat_GStar', 'n'))
-    execute 'nmap <silent> <Plug>SearchRepeat_GStar ' . (empty(maparg('*', 'n')) ? 'g*' : maparg('g*', 'n'))
+if empty(maparg('<SID>SearchRepeat_GStar', 'n'))
+    execute 'nmap <silent> <SID>SearchRepeat_GStar ' . (empty(maparg('*', 'n')) ? 'g*' : maparg('g*', 'n'))
 endif
-if empty(maparg('<Plug>SearchRepeat_Star', 'v'))
-    execute 'vmap <silent> <Plug>SearchRepeat_Star ' . (empty(maparg('*', 'v')) ? '*' : maparg('*', 'v'))
+if empty(maparg('<SID>SearchRepeat_Star', 'v'))
+    execute 'vmap <silent> <SID>SearchRepeat_Star ' . (empty(maparg('*', 'v')) ? '*' : maparg('*', 'v'))
 endif
 
 " Capture changes in the search pattern. 
@@ -128,12 +132,12 @@ endif
 "
 " In the standard search, the two directions never swap (it's always n/N, never
 " N/n), because the search direction is determined by the use of the / or ?
-" commands, and handled internally in VIM. 
+" commands, and handled internally in Vim. 
 nnoremap <silent> /  :<C-U>call SearchRepeat#Set("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N", 2)<Bar>call feedkeys(" \<lt>BS>", 'n')<CR>/
 nnoremap <silent> ?  :<C-U>call SearchRepeat#Set("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N", 2)<Bar>call feedkeys(" \<lt>BS>", 'n')<CR>?
-nmap <silent>  *     <Plug>SearchRepeat_Star:<C-U>call SearchRepeat#Set("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N", 2)<Bar>call histdel('cmd', -1)<CR>
-nmap <silent> g*     <Plug>SearchRepeat_GStar:<C-U>call SearchRepeat#Set("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N", 2)<Bar>call histdel('cmd', -1)<CR>
-vmap <silent>  *     <Plug>SearchRepeat_Star:<C-U>call SearchRepeat#Set("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N", 2)<Bar>call histdel('cmd', -1)<CR>
+nnoremap <silent> <script>  *  <SID>SearchRepeat_Star:<C-U>call SearchRepeat#Set("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N", 2)<Bar>call histdel('cmd', -1)<CR>
+nnoremap <silent> <script> g* <SID>SearchRepeat_GStar:<C-U>call SearchRepeat#Set("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N", 2)<Bar>call histdel('cmd', -1)<CR>
+vnoremap <silent> <script>  *  <SID>SearchRepeat_Star:<C-U>call SearchRepeat#Set("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N", 2)<Bar>call histdel('cmd', -1)<CR>
 
 
 

@@ -6,6 +6,8 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS 
+"	006	06-May-2009	Added a:relatedCommands to
+"				SearchRepeat#Register(). 
 "	005	06-Feb-2009	BF: Forgot s:lastSearch[3] initialization in one
 "				place. 
 "	004	04-Feb-2009	BF: Only turn on 'hlsearch' if no VIM error
@@ -82,8 +84,8 @@ endfunction
 
 "- registration and context help ----------------------------------------------
 let s:registrations = {}
-function! SearchRepeat#Register( mapping, keysToActivate, keysToReactivate, helptext )
-    let s:registrations[ a:mapping ] = [ a:keysToActivate, a:keysToReactivate, a:helptext ]
+function! SearchRepeat#Register( mapping, keysToActivate, keysToReactivate, helptext, relatedCommands )
+    let s:registrations[ a:mapping ] = [ a:keysToActivate, a:keysToReactivate, a:helptext, a:relatedCommands ]
 endfunction
 
 function! s:SortByReactivation(i1, i2)
@@ -101,16 +103,14 @@ function! s:SortByReactivation(i1, i2)
 endfunction
 function! SearchRepeat#Help()
     echohl Title
-    echo "react.\tact.\tdescription"
+    echo "activation\tdescription\t\t\t\trelated commands"
     echohl None
 
-    " Since our custom sort function treats both 'abcd' and 'aAbB' as sorted, we
-    " need to sort twice. 
     for [l:mapping, l:info] in sort( items(s:registrations), 's:SortByReactivation' )
 	if l:mapping == s:lastSearch[0]
 	    echohl ModeMsg
 	endif
-	echo l:info[1] . "\t" . l:info[0] . "\t" . l:info[2]
+	echo l:info[1] . "\t" . l:info[0] . "\t" . l:info[2] . (empty(l:info[3]) ? '' : repeat("\t", (40 - len(l:info[2]) - 1) / 8 + 1) . l:info[3])
 	echohl None
     endfor
 endfunction

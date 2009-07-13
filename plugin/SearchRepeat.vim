@@ -13,6 +13,8 @@
 "
 " INSTALLATION:
 " DEPENDENCIES:
+"   - SearchRepeat.vim autoload script. 
+"
 " CONFIGURATION:
 "   To set the current search type (in a custom search mapping):
 "	:call SearchRepeat#Set("\<Plug>MyCustomSearchMapping", "\<Plug>MyCustomOppositeSearchMapping", n)
@@ -48,12 +50,18 @@
 " KNOWN PROBLEMS:
 " TODO:
 "
-" Copyright: (C) 2008 by Ingo Karkat
+" Copyright: (C) 2008-2009 by Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'. 
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS 
+"	012	14-Jul-2009	The / and ? mappings swallowed the optional
+"				[count] that can be supplied to the built-ins;
+"				now using a :map-expr to pass in the [count]. 
+"	011	13-Jun-2009	BF: [g]* mappings now remove arbitrary entries
+"				from the command history; cannot reproduce the
+"				adding to history. Removing the histdel() again. 
 "	010	30-May-2009	Using nnoremap for SearchRepeat integration
 "				(through <SID>SearchRepeat_Star, not <Plug>...
 "				mappings); otherwise, the command would be
@@ -129,15 +137,18 @@ endif
 " immediately erase a <Space> search pattern; during macro playback, these keys
 " are queued as harmless (noremapped) normal mode commands which neutralize
 " themselves after the macro execution finishes. 
+" To include the optional [count] passed to / or ?, a :map-expr is used. 
 "
 " In the standard search, the two directions never swap (it's always n/N, never
 " N/n), because the search direction is determined by the use of the / or ?
 " commands, and handled internally in Vim. 
-nnoremap <silent> /  :<C-U>call SearchRepeat#Set("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N", 2)<Bar>call feedkeys(" \<lt>BS>", 'n')<CR>/
-nnoremap <silent> ?  :<C-U>call SearchRepeat#Set("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N", 2)<Bar>call feedkeys(" \<lt>BS>", 'n')<CR>?
-nnoremap <silent> <script>  *  <SID>SearchRepeat_Star:<C-U>call SearchRepeat#Set("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N", 2)<Bar>call histdel('cmd', -1)<CR>
-nnoremap <silent> <script> g* <SID>SearchRepeat_GStar:<C-U>call SearchRepeat#Set("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N", 2)<Bar>call histdel('cmd', -1)<CR>
-vnoremap <silent> <script>  *  <SID>SearchRepeat_Star:<C-U>call SearchRepeat#Set("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N", 2)<Bar>call histdel('cmd', -1)<CR>
+nnoremap <silent> <expr> <SID>SearchCommandWithCountForward (v:count ? v:count : '') . '/'
+nnoremap <silent> <expr> <SID>SearchCommandWithCountBackward (v:count ? v:count : '') . '?'
+nnoremap <silent> <script> /  :<C-U>call SearchRepeat#Set("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N", 2)<Bar>call feedkeys(" \<lt>BS>", 'n')<CR><SID>SearchCommandWithCountForward
+nnoremap <silent> <script> ?  :<C-U>call SearchRepeat#Set("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N", 2)<Bar>call feedkeys(" \<lt>BS>", 'n')<CR><SID>SearchCommandWithCountBackward
+nnoremap <silent> <script>  *  <SID>SearchRepeat_Star:<C-U>call SearchRepeat#Set("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N", 2)<CR>
+nnoremap <silent> <script> g* <SID>SearchRepeat_GStar:<C-U>call SearchRepeat#Set("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N", 2)<CR>
+vnoremap <silent> <script>  *  <SID>SearchRepeat_Star:<C-U>call SearchRepeat#Set("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N", 2)<CR>
 
 
 

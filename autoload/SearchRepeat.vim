@@ -1,16 +1,18 @@
 " SearchRepeat.vim: Repeat the last type of search via n/N. 
 "
-" Copyright: (C) 2008 by Ingo Karkat
+" Copyright: (C) 2008-2009 by Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'. 
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS 
+"	007	03-Jul-2009	Added 'keys' configuration for
+"				SearchWithoutHighlighting.vim. 
 "	006	06-May-2009	Added a:relatedCommands to
 "				SearchRepeat#Register(). 
 "	005	06-Feb-2009	BF: Forgot s:lastSearch[3] initialization in one
 "				place. 
-"	004	04-Feb-2009	BF: Only turn on 'hlsearch' if no VIM error
+"	004	04-Feb-2009	BF: Only turn on 'hlsearch' if no Vim error
 "				occurred to avoid clearing of long error message
 "				with Hit-Enter. 
 "	003	02-Feb-2009	Fixed broken macro playback of n and N
@@ -61,13 +63,23 @@ function! SearchRepeat#Repeat( isOpposite )
 	" feedkeys(), which would break macro playback. Thus, we use feedkeys() to
 	" turn on 'hlsearch' (via a <silent> mapping, so it isn't echoed), unless
 	" the current search type explicitly opts out of this. 
-	" Note: Only turn on 'hlsearch' if no VIM error occurred (like "E486:
+	" Note: Only turn on 'hlsearch' if no Vim error occurred (like "E486:
 	" Pattern not found"); otherwise, the <Plug>SearchRepeat_hlsearch
 	" mapping (though <silent>) would clear a long error message which
 	" causes the Hit-Enter prompt. In case of a search error, there's
 	" nothing to highlight, anyway. 
 	if get(s:lastSearch[3], 'hlsearch', 1)
-	    call feedkeys( "\<Plug>SearchRepeat_hlsearch" )
+	    call feedkeys("\<Plug>SearchRepeat_hlsearch")
+	endif
+
+	" Apart from the 'hlsearch' flag, arbitrary (mapped) key sequences can
+	" be appended via the 'keys' configuration. This could e.g. be used to
+	" implement the opposite of 'hlsearch', turning off search highlighting,
+	" by nnoremap <silent> <Plug>SearchHighlightingOff :nohlsearch<CR>, then
+	" setting 'keys' to "\<Plug>SearchHighlightingOff". 
+	let l:keys = get(s:lastSearch[3], 'keys', '')
+	if ! empty(l:keys)
+	    call feedkeys(l:keys)
 	endif
     catch /^Vim\%((\a\+)\)\=:E/
 	echohl ErrorMsg

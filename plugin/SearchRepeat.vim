@@ -59,6 +59,9 @@
 "	012	14-Jul-2009	The / and ? mappings swallowed the optional
 "				[count] that can be supplied to the built-ins;
 "				now using a :map-expr to pass in the [count]. 
+"				Now storing the [count] of the last search
+"				command in g:lastSearchCount for consumption by
+"				other plugins (SearchAsQuickJumpNext). 
 "	011	13-Jun-2009	BF: [g]* mappings now remove arbitrary entries
 "				from the command history; cannot reproduce the
 "				adding to history. Removing the histdel() again. 
@@ -112,8 +115,9 @@ nnoremap <silent> <Plug>SearchRepeat_hlsearch :<C-U>if &hlsearch<Bar>set hlsearc
 nnoremap <silent> n :<C-U>call SearchRepeat#Repeat(0)<CR>
 nnoremap <silent> N :<C-U>call SearchRepeat#Repeat(1)<CR>
 
+
 " The user might have remapped the [g]* commands (e.g. by using the
-" SearchHighlighting.vim plugin). We preserve these mappings (assuming they're
+" SearchHighlighting plugin). We preserve these mappings (assuming they're
 " 'noremap). 
 " Note: Must check for existing mapping to avoid recursive mapping after script
 " reload. 
@@ -127,8 +131,21 @@ if empty(maparg('<SID>SearchRepeat_Star', 'v'))
     execute 'vmap <silent> <SID>SearchRepeat_Star ' . (empty(maparg('*', 'v')) ? '*' : maparg('*', 'v'))
 endif
 
+
+
 " Capture changes in the search pattern. 
-"
+
+" To include the optional [count] passed to / or ?, a :map-expr is used. 
+function! s:SearchCommandWithCount( isBackward )
+    " Store the [count] of the last search command. Other plugins that enhance
+    " the standard search (SearchAsQuickJumpNext) are interested in it. 
+    let g:lastSearchCount = v:count
+
+    return (v:count ? v:count : '') . (a:isBackward ? '?' : '/')
+endfunction
+nnoremap <silent> <expr> <SID>SearchCommandWithCountForward <SID>SearchCommandWithCount(0)
+nnoremap <silent> <expr> <SID>SearchCommandWithCountBackward <SID>SearchCommandWithCount(1)
+
 " Note: A simple <CR>/ doesn't immediately draw the search command-line, only
 " when a pattern is typed. A feedkeys('/','n')<CR> instead shows the search
 " command-line, but breaks macro playback. What does work is a combination
@@ -137,13 +154,9 @@ endif
 " immediately erase a <Space> search pattern; during macro playback, these keys
 " are queued as harmless (noremapped) normal mode commands which neutralize
 " themselves after the macro execution finishes. 
-" To include the optional [count] passed to / or ?, a :map-expr is used. 
-"
 " In the standard search, the two directions never swap (it's always n/N, never
 " N/n), because the search direction is determined by the use of the / or ?
 " commands, and handled internally in Vim. 
-nnoremap <silent> <expr> <SID>SearchCommandWithCountForward (v:count ? v:count : '') . '/'
-nnoremap <silent> <expr> <SID>SearchCommandWithCountBackward (v:count ? v:count : '') . '?'
 nnoremap <silent> <script> /  :<C-U>call SearchRepeat#Set("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N", 2)<Bar>call feedkeys(" \<lt>BS>", 'n')<CR><SID>SearchCommandWithCountForward
 nnoremap <silent> <script> ?  :<C-U>call SearchRepeat#Set("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N", 2)<Bar>call feedkeys(" \<lt>BS>", 'n')<CR><SID>SearchCommandWithCountBackward
 nnoremap <silent> <script>  *  <SID>SearchRepeat_Star:<C-U>call SearchRepeat#Set("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N", 2)<CR>

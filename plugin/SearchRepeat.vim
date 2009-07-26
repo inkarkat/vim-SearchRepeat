@@ -56,6 +56,9 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS 
+"	013	27-Jul-2009	Added insert mode shadow mappings and <SID>NM
+"				abstraction to allow execution of SearchRepeat
+"				mappings from insert mode via <C-O>. 
 "	012	14-Jul-2009	The / and ? mappings swallowed the optional
 "				[count] that can be supplied to the built-ins;
 "				now using a :map-expr to pass in the [count]. 
@@ -146,6 +149,20 @@ endfunction
 nnoremap <silent> <expr> <SID>SearchCommandWithCountForward <SID>SearchCommandWithCount(0)
 nnoremap <silent> <expr> <SID>SearchCommandWithCountBackward <SID>SearchCommandWithCount(1)
 
+" To support execution of the SearchRepeat command from within insert mode (via
+" |i_CTRL-O|), two strategies are used: 
+"
+" Normal mode mappings are shadowed by insert mode mappings that re-enter normal
+" mode, then invoke the normal mode mapping. 
+inoremap <silent> <script> <SID>SearchCommandWithCountForward <C-\><C-O><SID>SearchCommandWithCountForward
+inoremap <silent> <script> <SID>SearchCommandWithCountBackward <C-\><C-O><SID>SearchCommandWithCountBackward
+" Normal mode mappings that consist of multiple Ex command lines (and where
+" Ex commands cannot be concatenated via <Bar>) use <SID>NM instead of ':<C-U>';
+" the insert mode variant of <SID>NM re-enter command mode for one ex command
+" line. 
+nnoremap <silent> <SID>NM :<C-U>
+inoremap <silent> <SID>NM <C-\><C-O>:
+
 " Note: A simple <CR>/ doesn't immediately draw the search command-line, only
 " when a pattern is typed. A feedkeys('/','n')<CR> instead shows the search
 " command-line, but breaks macro playback. What does work is a combination
@@ -159,10 +176,9 @@ nnoremap <silent> <expr> <SID>SearchCommandWithCountBackward <SID>SearchCommandW
 " commands, and handled internally in Vim. 
 nnoremap <silent> <script> /  :<C-U>call SearchRepeat#Set("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N", 2)<Bar>call feedkeys(" \<lt>BS>", 'n')<CR><SID>SearchCommandWithCountForward
 nnoremap <silent> <script> ?  :<C-U>call SearchRepeat#Set("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N", 2)<Bar>call feedkeys(" \<lt>BS>", 'n')<CR><SID>SearchCommandWithCountBackward
-nnoremap <silent> <script>  *  <SID>SearchRepeat_Star:<C-U>call SearchRepeat#Set("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N", 2)<CR>
-nnoremap <silent> <script> g* <SID>SearchRepeat_GStar:<C-U>call SearchRepeat#Set("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N", 2)<CR>
-vnoremap <silent> <script>  *  <SID>SearchRepeat_Star:<C-U>call SearchRepeat#Set("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N", 2)<CR>
-
+nnoremap <silent> <script>  *  <SID>SearchRepeat_Star<SID>NMcall SearchRepeat#Set("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N", 2)<CR>
+nnoremap <silent> <script> g* <SID>SearchRepeat_GStar<SID>NMcall SearchRepeat#Set("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N", 2)<CR>
+vnoremap <silent> <script>  *  <SID>SearchRepeat_Star<SID>NMcall SearchRepeat#Set("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N", 2)<CR>
 
 
 " gn			Show all registered search types, keys to (re-)activate,

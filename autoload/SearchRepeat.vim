@@ -6,6 +6,19 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS 
+"	008	17-Aug-2009	Added 'description' configuration for use in
+"				ingostatusline.vim. This is a shorter, more
+"				identifier-like representation than the
+"				helptext; the same as SearchSpecial.vim's
+"				'predicateDescription' framed by the /.../ or
+"				?...? indicator for the search direction. 
+"				Factored out s:FixedTabWidth(). 
+"				Moved "related commands" one shiftwidth to the
+"				right to make room for the current largest
+"				description + helptext. This formatting also
+"				nicely prints on 80-column Vim, with the
+"				optional related commands column moving to a
+"				second line. 
 "	007	03-Jul-2009	Added 'keys' configuration for
 "				SearchWithoutHighlighting.vim. 
 "	006	06-May-2009	Added a:relatedCommands to
@@ -96,8 +109,8 @@ endfunction
 
 "- registration and context help ----------------------------------------------
 let s:registrations = {}
-function! SearchRepeat#Register( mapping, keysToActivate, keysToReactivate, helptext, relatedCommands )
-    let s:registrations[ a:mapping ] = [ a:keysToActivate, a:keysToReactivate, a:helptext, a:relatedCommands ]
+function! SearchRepeat#Register( mapping, keysToActivate, keysToReactivate, description, helptext, relatedCommands )
+    let s:registrations[ a:mapping ] = [ a:keysToActivate, a:keysToReactivate, a:description, a:helptext, a:relatedCommands ]
 endfunction
 
 function! s:SortByReactivation(i1, i2)
@@ -113,16 +126,24 @@ function! s:SortByReactivation(i1, i2)
 	return tolower(s1) > tolower(s2) ? 1 : -1
     endif
 endfunction
+function! s:FixedTabWidth( precedingTextWidth, precedingText, text )
+    return repeat("\t", (a:precedingTextWidth - len(a:precedingText) - 1) / 8 + 1) . a:text
+endfunction
 function! SearchRepeat#Help()
     echohl Title
-    echo "activation\tdescription\t\t\t\trelated commands"
+    echo "activation\tdescription\thelptext\t\t\t\t\trelated commands"
     echohl None
 
     for [l:mapping, l:info] in sort( items(s:registrations), 's:SortByReactivation' )
 	if l:mapping == s:lastSearch[0]
 	    echohl ModeMsg
 	endif
-	echo l:info[1] . "\t" . l:info[0] . "\t" . l:info[2] . (empty(l:info[3]) ? '' : repeat("\t", (40 - len(l:info[2]) - 1) / 8 + 1) . l:info[3])
+
+	" Strip off the /.../ or ?...? indicator for the search direction; it
+	" just adds visual clutter to the list. 
+	let l:description = substitute(l:info[2], '^\([/?]\)\(.*\)\1$', '\2', '')
+
+	echo l:info[1] . "\t" . l:info[0] . "\t" . l:description. s:FixedTabWidth(16, l:description, l:info[3]) . (empty(l:info[4]) ? '' : s:FixedTabWidth(48, l:info[3], l:info[4]))
 	echohl None
     endfor
 endfunction

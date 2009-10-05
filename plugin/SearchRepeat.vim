@@ -113,6 +113,7 @@ nnoremap <Plug>SearchRepeat_N Nzv
 " echoing of the command. This is the <silent> mapping that does this inside
 " SearchRepeat#Repeat(). 
 nnoremap <silent> <Plug>SearchRepeat_hlsearch :<C-U>if &hlsearch<Bar>set hlsearch<Bar>endif<CR>
+inoremap <silent> <Plug>SearchRepeat_hlsearch <C-\><C-O>:<C-U>if &hlsearch<Bar>set hlsearch<Bar>endif<CR>
 
 " n/N			Repeat the last type of search. 
 nnoremap <silent> n :<C-U>call SearchRepeat#Repeat(0)<CR>

@@ -56,6 +56,8 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS 
+"	014	06-Oct-2009	Do not define * mapping for select mode;
+"				printable characters should start insert mode. 
 "	013	27-Jul-2009	Added insert mode shadow mappings and <SID>NM
 "				abstraction to allow execution of SearchRepeat
 "				mappings from insert mode via <C-O>. 
@@ -131,8 +133,8 @@ endif
 if empty(maparg('<SID>SearchRepeat_GStar', 'n'))
     execute 'nmap <silent> <SID>SearchRepeat_GStar ' . (empty(maparg('*', 'n')) ? 'g*' : maparg('g*', 'n'))
 endif
-if empty(maparg('<SID>SearchRepeat_Star', 'v'))
-    execute 'vmap <silent> <SID>SearchRepeat_Star ' . (empty(maparg('*', 'v')) ? '*' : maparg('*', 'v'))
+if empty(maparg('<SID>SearchRepeat_Star', 'x'))
+    execute 'xmap <silent> <SID>SearchRepeat_Star ' . (empty(maparg('*', 'x')) ? '*' : maparg('*', 'x'))
 endif
 
 
@@ -179,7 +181,7 @@ nnoremap <silent> <script> /  :<C-U>call SearchRepeat#Set("\<Plug>SearchRepeat_n
 nnoremap <silent> <script> ?  :<C-U>call SearchRepeat#Set("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N", 2)<Bar>call feedkeys(" \<lt>BS>", 'n')<CR><SID>SearchCommandWithCountBackward
 nnoremap <silent> <script>  *  <SID>SearchRepeat_Star<SID>NMcall SearchRepeat#Set("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N", 2)<CR>
 nnoremap <silent> <script> g* <SID>SearchRepeat_GStar<SID>NMcall SearchRepeat#Set("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N", 2)<CR>
-vnoremap <silent> <script>  *  <SID>SearchRepeat_Star<SID>NMcall SearchRepeat#Set("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N", 2)<CR>
+xnoremap <silent> <script>  *  <SID>SearchRepeat_Star<SID>NMcall SearchRepeat#Set("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N", 2)<CR>
 
 
 " gn			Show all registered search types, keys to (re-)activate,

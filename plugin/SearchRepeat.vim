@@ -50,12 +50,15 @@
 " KNOWN PROBLEMS:
 " TODO:
 "
-" Copyright: (C) 2008-2009 by Ingo Karkat
+" Copyright: (C) 2008-2011 by Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'. 
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS 
+"	015	08-Feb-2011	BUG: Search repeat via n / N always opened fold,
+"				even when no occurrence of the search pattern
+"				was found. 
 "	014	06-Oct-2009	Do not define * mapping for select mode;
 "				printable characters should start insert mode. 
 "	013	27-Jul-2009	Added insert mode shadow mappings and <SID>NM
@@ -108,8 +111,20 @@ let g:loaded_SearchRepeat = 1
 " end up in endless recursion. Thus, define noremapping mappings for [nN]. 
 " Note: When typed, [*#nN] open the fold at the search result, but inside a mapping or
 " :normal this must be done explicitly via 'zv'. 
-nnoremap <Plug>SearchRepeat_n nzv
-nnoremap <Plug>SearchRepeat_N Nzv
+" The tricky thing here is that folds must only be opened when the jump
+" succeeded. The 'n' command doesn't abort the mapping chain, so we have to
+" explicitly check for a successful jump in a custom function. 
+function! s:RepeatSearch( cmd )
+    let l:save_errmsg = v:errmsg
+    let v:errmsg = ''
+    execute 'normal!' (v:count ? v:count : '') . a:cmd
+    if empty(v:errmsg)
+	let v:errmsg = l:save_errmsg
+	normal! zv
+    endif
+endfunction
+nnoremap <silent> <Plug>SearchRepeat_n :<C-u>call <SID>RepeatSearch('n')<CR>
+nnoremap <silent> <Plug>SearchRepeat_N :<C-u>call <SID>RepeatSearch('N')<CR>
 
 " During repetition, 'hlsearch' must be explicitly turned on, but without
 " echoing of the command. This is the <silent> mapping that does this inside

@@ -199,7 +199,7 @@ nnoremap <silent> <script> g* <SID>SearchRepeat_GStar<SID>NMcall SearchRepeat#Se
 xnoremap <silent> <script>  *  <SID>SearchRepeat_Star<SID>NMcall SearchRepeat#Set("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N", 2)<CR>
 
 
-" gn			Show all registered search types, keys to (re-)activate,
+" gn			List all registered search types, keys to (re-)activate,
 "			and the currently active search type. 
 nnoremap <Plug>SearchRepeatHelp :<C-U>call SearchRepeat#Help()<CR>
 if ! hasmapto('<Plug>SearchRepeatHelp', 'n')

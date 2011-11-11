@@ -50,12 +50,14 @@
 " KNOWN PROBLEMS:
 " TODO:
 "
-" Copyright: (C) 2008-2011 by Ingo Karkat
+" Copyright: (C) 2008-2011 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'. 
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS 
+"	016	30-Sep-2011	Use <silent> for <Plug> mapping instead of
+"				default mapping. 
 "	015	08-Feb-2011	BUG: Search repeat via n / N always opened fold,
 "				even when no occurrence of the search pattern
 "				was found. 
@@ -201,9 +203,9 @@ xnoremap <silent> <script>  *  <SID>SearchRepeat_Star<SID>NMcall SearchRepeat#Se
 
 " gn			List all registered search types, keys to (re-)activate,
 "			and the currently active search type. 
-nnoremap <Plug>SearchRepeatHelp :<C-U>call SearchRepeat#Help()<CR>
+nnoremap <silent> <Plug>SearchRepeatHelp :<C-U>call SearchRepeat#Help()<CR>
 if ! hasmapto('<Plug>SearchRepeatHelp', 'n')
-    nmap <silent> gn <Plug>SearchRepeatHelp
+    nmap gn <Plug>SearchRepeatHelp
 endif
 
 " vim: set sts=4 sw=4 noexpandtab ff=unix fdm=syntax :

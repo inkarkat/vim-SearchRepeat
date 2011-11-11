@@ -19,6 +19,8 @@
 "				nicely prints on 80-column Vim, with the
 "				optional related commands column moving to a
 "				second line. 
+"				Added SearchRepeat#LastSearchDescription() as an
+"				integration point for ingostatusline.vim. 
 "	007	03-Jul-2009	Added 'keys' configuration for
 "				SearchWithoutHighlighting.vim. 
 "	006	06-May-2009	Added a:relatedCommands to
@@ -42,16 +44,16 @@
 "				file creation
 
 let s:lastSearch = ["\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N", 2, {}]
+let s:lastSearchDescription = ''
 
 function! SearchRepeat#Set( mapping, oppositeMapping, howToHandleCount, ... )
     let s:lastSearch = [a:mapping, a:oppositeMapping, a:howToHandleCount, (a:0 ? a:1 : {})]
+    let s:lastSearchDescription = s:registrations[a:mapping][2]
 endfunction
-
 function! SearchRepeat#Execute( mapping, oppositeMapping, howToHandleCount, ... )
-    let s:lastSearch = [a:mapping, a:oppositeMapping, a:howToHandleCount, (a:0 ? a:1 : {})]
+    call SearchRepeat#Set(a:mapping, a:oppositeMapping, a:howToHandleCount, (a:0 ? a:1 : {}))
     call SearchRepeat#Repeat(0)
 endfunction
-
 function! SearchRepeat#Repeat( isOpposite )
     let l:searchCommand = s:lastSearch[ a:isOpposite ]
 
@@ -106,6 +108,11 @@ function! SearchRepeat#Repeat( isOpposite )
 endfunction
 
 
+
+"- integration point for search type ------------------------------------------
+function! SearchRepeat#LastSearchDescription()
+    return s:lastSearchDescription
+endfunction
 
 "- registration and context help ----------------------------------------------
 let s:registrations = {}

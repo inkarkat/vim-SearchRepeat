@@ -13,7 +13,8 @@
 "
 " INSTALLATION:
 " DEPENDENCIES:
-"   - SearchRepeat.vim autoload script.
+"   - SearchRepeat.vim autoload script
+"   - ingo/err.vim autoload script
 "
 " CONFIGURATION:
 "   To set the current search type (in a custom search mapping):
@@ -50,12 +51,14 @@
 " KNOWN PROBLEMS:
 " TODO:
 "
-" Copyright: (C) 2008-2012 Ingo Karkat
+" Copyright: (C) 2008-2013 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
+"	018	08-Mar-2013	Replace global temporary g:errmsg with
+"				ingo#err#Get().
 "	017	12-May-2012	Just :echomsg'ing the error doesn't abort a
 "				mapping sequence, e.g. when "n" is contained in
 "				a macro, but it should. Therefore, returning the
@@ -141,8 +144,8 @@ nnoremap <silent> <Plug>SearchRepeat_hlsearch :<C-U>if &hlsearch<Bar>set hlsearc
 inoremap <silent> <Plug>SearchRepeat_hlsearch <C-\><C-O>:<C-U>if &hlsearch<Bar>set hlsearch<Bar>endif<CR>
 
 " n/N			Repeat the last type of search.
-nnoremap <silent> n :<C-U>let g:errmsg = SearchRepeat#Repeat(0)<Bar>if ! empty(g:errmsg)<Bar>echoerr g:errmsg<Bar>endif<CR>
-nnoremap <silent> N :<C-U>let g:errmsg = SearchRepeat#Repeat(1)<Bar>if ! empty(g:errmsg)<Bar>echoerr g:errmsg<Bar>endif<CR>
+nnoremap <silent> n :<C-u>if ! SearchRepeat#Repeat(0)<Bar>echoerr ingo#err#Get()<Bar>endif<CR>
+nnoremap <silent> N :<C-u>if ! SearchRepeat#Repeat(1)<Bar>echoerr ingo#err#Get()<Bar>endif<CR>
 
 
 " The user might have remapped the [g]* commands (e.g. by using the

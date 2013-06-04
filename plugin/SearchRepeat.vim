@@ -62,6 +62,8 @@
 "				completly rewrite the complex setup with a
 "				:map-expr. Why haven't I thought of that
 "				before?!
+"				Apply the same to the * / g* commands and do
+"				away with all the clumsy setup.
 "	018	08-Mar-2013	Replace global temporary g:errmsg with
 "				ingo#err#Get().
 "	017	12-May-2012	Just :echomsg'ing the error doesn't abort a
@@ -172,33 +174,28 @@ endif
 
 " Capture changes in the search pattern.
 
-" To support execution of the SearchRepeat command from within insert mode (via
-" |i_CTRL-O|), TODO strategies are used:
-"
-" Normal mode mappings that consist of multiple Ex command lines (and where
-" Ex commands cannot be concatenated via <Bar>) use <SID>(NM) instead of ':<C-U>';
-" the insert mode variant of <SID>(NM) re-enter command mode for one ex command
-" line.
-nnoremap <silent> <SID>(NM) :<C-U>
-inoremap <silent> <SID>(NM) <C-\><C-O>:
-
 " In the standard search, the two directions never swap (it's always n/N, never
 " N/n), because the search direction is determined by the use of the / or ?
 " commands, and handled internally in Vim.
-function! s:SearchCommand( search )
+function! s:SearchCommand( keys )
     " Store the [count] of the last search command. Other plugins that enhance
     " the standard search (SearchAsQuickJumpNext) are interested in it.
     let g:lastSearchCount = v:count
 
     call SearchRepeat#Set("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N", 2)
 
-    return a:search
+    return a:keys
 endfunction
 nnoremap <expr> /  <SID>SearchCommand('/')
 nnoremap <expr> ?  <SID>SearchCommand('?')
-nnoremap <silent> <script>  *  <SID>SearchRepeat_Star<SID>(NM)call SearchRepeat#Set("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N", 2)<CR>
-nnoremap <silent> <script> g* <SID>SearchRepeat_GStar<SID>(NM)call SearchRepeat#Set("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N", 2)<CR>
-xnoremap <silent> <script>  *  <SID>SearchRepeat_Star<SID>(NM)call SearchRepeat#Set("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N", 2)<CR>
+
+" Note: Reusing the s:SearchCommand() function to set the repeat; the storing of
+" [count] doesn't matter here.
+noremap  <expr> <SID>(SetRepeat)  <SID>SearchCommand('')
+noremap! <expr> <SID>(SetRepeat)  <SID>SearchCommand('')
+nnoremap <silent> <script>  *  <SID>SearchRepeat_Star<SID>(SetRepeat)
+nnoremap <silent> <script> g* <SID>SearchRepeat_GStar<SID>(SetRepeat)
+xnoremap <silent> <script>  *  <SID>SearchRepeat_Star<SID>(SetRepeat)
 
 
 " gn			List all registered search types, keys to (re-)activate,

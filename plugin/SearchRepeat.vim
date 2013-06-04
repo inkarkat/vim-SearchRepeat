@@ -57,6 +57,11 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
+"	019	05-Jun-2013	FIX: Passing of [count] of / and ? broke
+"				somewhere between Vim 7.3.000 and 7.3.823;
+"				completly rewrite the complex setup with a
+"				:map-expr. Why haven't I thought of that
+"				before?!
 "	018	08-Mar-2013	Replace global temporary g:errmsg with
 "				ingo#err#Get().
 "	017	12-May-2012	Just :echomsg'ing the error doesn't abort a
@@ -150,7 +155,7 @@ nnoremap <silent> N :<C-u>if ! SearchRepeat#Repeat(1)<Bar>echoerr ingo#err#Get()
 
 " The user might have remapped the [g]* commands (e.g. by using the
 " SearchHighlighting plugin). We preserve these mappings (assuming they're
-" 'noremap).
+" remappable <Plug>-mappings).
 " Note: Must check for existing mapping to avoid recursive mapping after script
 " reload.
 if empty(maparg('<SID>SearchRepeat_Star', 'n'))
@@ -167,47 +172,33 @@ endif
 
 " Capture changes in the search pattern.
 
-" To include the optional [count] passed to / or ?, a :map-expr is used.
-function! s:SearchCommandWithCount( isBackward )
+" To support execution of the SearchRepeat command from within insert mode (via
+" |i_CTRL-O|), TODO strategies are used:
+"
+" Normal mode mappings that consist of multiple Ex command lines (and where
+" Ex commands cannot be concatenated via <Bar>) use <SID>(NM) instead of ':<C-U>';
+" the insert mode variant of <SID>(NM) re-enter command mode for one ex command
+" line.
+nnoremap <silent> <SID>(NM) :<C-U>
+inoremap <silent> <SID>(NM) <C-\><C-O>:
+
+" In the standard search, the two directions never swap (it's always n/N, never
+" N/n), because the search direction is determined by the use of the / or ?
+" commands, and handled internally in Vim.
+function! s:SearchCommand( search )
     " Store the [count] of the last search command. Other plugins that enhance
     " the standard search (SearchAsQuickJumpNext) are interested in it.
     let g:lastSearchCount = v:count
 
-    return (v:count ? v:count : '') . (a:isBackward ? '?' : '/')
+    call SearchRepeat#Set("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N", 2)
+
+    return a:search
 endfunction
-nnoremap <silent> <expr> <SID>SearchCommandWithCountForward <SID>SearchCommandWithCount(0)
-nnoremap <silent> <expr> <SID>SearchCommandWithCountBackward <SID>SearchCommandWithCount(1)
-
-" To support execution of the SearchRepeat command from within insert mode (via
-" |i_CTRL-O|), two strategies are used:
-"
-" Normal mode mappings are shadowed by insert mode mappings that re-enter normal
-" mode, then invoke the normal mode mapping.
-inoremap <silent> <script> <SID>SearchCommandWithCountForward <C-\><C-O><SID>SearchCommandWithCountForward
-inoremap <silent> <script> <SID>SearchCommandWithCountBackward <C-\><C-O><SID>SearchCommandWithCountBackward
-" Normal mode mappings that consist of multiple Ex command lines (and where
-" Ex commands cannot be concatenated via <Bar>) use <SID>NM instead of ':<C-U>';
-" the insert mode variant of <SID>NM re-enter command mode for one ex command
-" line.
-nnoremap <silent> <SID>NM :<C-U>
-inoremap <silent> <SID>NM <C-\><C-O>:
-
-" Note: A simple <CR>/ doesn't immediately draw the search command-line, only
-" when a pattern is typed. A feedkeys('/','n')<CR> instead shows the search
-" command-line, but breaks macro playback. What does work is a combination
-" trick: Use <CR>/ at the end of the mapping, but also force a search
-" command-line update via feedkeys(" \<BS>",'n'). The sent keys add and
-" immediately erase a <Space> search pattern; during macro playback, these keys
-" are queued as harmless (noremapped) normal mode commands which neutralize
-" themselves after the macro execution finishes.
-" In the standard search, the two directions never swap (it's always n/N, never
-" N/n), because the search direction is determined by the use of the / or ?
-" commands, and handled internally in Vim.
-nnoremap <silent> <script> /  :<C-U>call SearchRepeat#Set("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N", 2)<Bar>call feedkeys(" \<lt>BS>", 'n')<CR><SID>SearchCommandWithCountForward
-nnoremap <silent> <script> ?  :<C-U>call SearchRepeat#Set("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N", 2)<Bar>call feedkeys(" \<lt>BS>", 'n')<CR><SID>SearchCommandWithCountBackward
-nnoremap <silent> <script>  *  <SID>SearchRepeat_Star<SID>NMcall SearchRepeat#Set("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N", 2)<CR>
-nnoremap <silent> <script> g* <SID>SearchRepeat_GStar<SID>NMcall SearchRepeat#Set("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N", 2)<CR>
-xnoremap <silent> <script>  *  <SID>SearchRepeat_Star<SID>NMcall SearchRepeat#Set("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N", 2)<CR>
+nnoremap <expr> /  <SID>SearchCommand('/')
+nnoremap <expr> ?  <SID>SearchCommand('?')
+nnoremap <silent> <script>  *  <SID>SearchRepeat_Star<SID>(NM)call SearchRepeat#Set("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N", 2)<CR>
+nnoremap <silent> <script> g* <SID>SearchRepeat_GStar<SID>(NM)call SearchRepeat#Set("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N", 2)<CR>
+xnoremap <silent> <script>  *  <SID>SearchRepeat_Star<SID>(NM)call SearchRepeat#Set("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N", 2)<CR>
 
 
 " gn			List all registered search types, keys to (re-)activate,

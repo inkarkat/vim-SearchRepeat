@@ -1,11 +1,17 @@
 " SearchRepeat.vim: Repeat the last type of search via n/N.
 "
-" Copyright: (C) 2008-2011 Ingo Karkat
+" DEPENDENCIES:
+"   - ingo/err.vim autoload script
+"
+" Copyright: (C) 2008-2013 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
+"	010	08-Mar-2013	Use ingo#err#SetVimException() instead of
+"				returning the error message; this avoids the
+"				temporary global variable in the mapping.
 "	009	12-May-2012	Just :echomsg'ing the error doesn't abort a
 "				mapping sequence, e.g. when "n" is contained in
 "				a macro, but it should. Therefore, returning the
@@ -103,22 +109,22 @@ function! SearchRepeat#Repeat( isOpposite )
 	    call feedkeys(l:keys)
 	endif
     catch /^Vim\%((\a\+)\)\=:E/
-	" v:exception contains what is normally in v:errmsg, but with extra
-	" exception source info prepended, which we cut away.
-	return substitute(v:exception, '^Vim\%((\a\+)\)\=:', '', '')
+	call ingo#err#SetVimException()
+	return 0
     endtry
-    "call feedkeys( l:searchCommand )
-    return ''
+    return 1
 endfunction
 
 
 
 "- integration point for search type ------------------------------------------
+
 function! SearchRepeat#LastSearchDescription()
     return s:lastSearchDescription
 endfunction
 
 "- registration and context help ----------------------------------------------
+
 let s:registrations = {}
 function! SearchRepeat#Register( mapping, keysToActivate, keysToReactivate, description, helptext, relatedCommands )
     let s:registrations[ a:mapping ] = [ a:keysToActivate, a:keysToReactivate, a:description, a:helptext, a:relatedCommands ]

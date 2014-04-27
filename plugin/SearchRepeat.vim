@@ -64,6 +64,7 @@
 "				before?!
 "				Apply the same to the * / g* commands and do
 "				away with all the clumsy setup.
+"				Change mappings to use <SID>(name) scheme.
 "	018	08-Mar-2013	Replace global temporary g:errmsg with
 "				ingo#err#Get().
 "	017	12-May-2012	Just :echomsg'ing the error doesn't abort a
@@ -160,14 +161,14 @@ nnoremap <silent> N :<C-u>if ! SearchRepeat#Repeat(1)<Bar>echoerr ingo#err#Get()
 " remappable <Plug>-mappings).
 " Note: Must check for existing mapping to avoid recursive mapping after script
 " reload.
-if empty(maparg('<SID>SearchRepeat_Star', 'n'))
-    execute 'nmap <silent> <SID>SearchRepeat_Star ' . (empty(maparg('*', 'n')) ? '*' : maparg('*', 'n'))
+if empty(maparg('<SID>(SearchRepeat_Star)', 'n'))
+    execute 'nmap <silent> <SID>(SearchRepeat_Star) ' . (empty(maparg('*', 'n')) ? '*' : maparg('*', 'n'))
 endif
-if empty(maparg('<SID>SearchRepeat_GStar', 'n'))
-    execute 'nmap <silent> <SID>SearchRepeat_GStar ' . (empty(maparg('*', 'n')) ? 'g*' : maparg('g*', 'n'))
+if empty(maparg('<SID>(SearchRepeat_GStar)', 'n'))
+    execute 'nmap <silent> <SID>(SearchRepeat_GStar) ' . (empty(maparg('*', 'n')) ? 'g*' : maparg('g*', 'n'))
 endif
-if empty(maparg('<SID>SearchRepeat_Star', 'x'))
-    execute 'xmap <silent> <SID>SearchRepeat_Star ' . (empty(maparg('*', 'x')) ? '*' : maparg('*', 'x'))
+if empty(maparg('<SID>(SearchRepeat_Star)', 'x'))
+    execute 'xmap <silent> <SID>(SearchRepeat_Star) ' . (empty(maparg('*', 'x')) ? '*' : maparg('*', 'x'))
 endif
 
 
@@ -193,16 +194,16 @@ nnoremap <expr> ?  <SID>SearchCommand('?')
 " [count] doesn't matter here.
 noremap  <expr> <SID>(SetRepeat)  <SID>SearchCommand('')
 noremap! <expr> <SID>(SetRepeat)  <SID>SearchCommand('')
-nnoremap <silent> <script>  *  <SID>SearchRepeat_Star<SID>(SetRepeat)
-nnoremap <silent> <script> g* <SID>SearchRepeat_GStar<SID>(SetRepeat)
-xnoremap <silent> <script>  *  <SID>SearchRepeat_Star<SID>(SetRepeat)
+nnoremap <silent> <script>  *  <SID>(SearchRepeat_Star)<SID>(SetRepeat)
+nnoremap <silent> <script> g* <SID>(SearchRepeat_GStar)<SID>(SetRepeat)
+xnoremap <silent> <script>  *  <SID>(SearchRepeat_Star)<SID>(SetRepeat)
 
 
 " gn			List all registered search types, keys to (re-)activate,
 "			and the currently active search type.
-nnoremap <silent> <Plug>SearchRepeatHelp :<C-U>call SearchRepeat#Help()<CR>
-if ! hasmapto('<Plug>SearchRepeatHelp', 'n')
-    nmap gn <Plug>SearchRepeatHelp
+nnoremap <silent> <Plug>(SearchRepeatHelp) :<C-U>call SearchRepeat#Help()<CR>
+if ! hasmapto('<Plug>(SearchRepeatHelp)', 'n')
+    nmap gn <Plug>(SearchRepeatHelp)
 endif
 
 " vim: set ts=8 sts=4 sw=4 noexpandtab ff=unix fdm=syntax :

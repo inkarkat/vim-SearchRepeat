@@ -1,0 +1,115 @@
+*SearchRepeat.txt*      Repeat the last type of search via n/N.
+
+		       SEARCH REPEAT    by Ingo Karkat
+							    *SearchRepeat.vim*
+description			|SearchRepeat-description|
+usage				|SearchRepeat-usage|
+installation			|SearchRepeat-installation|
+configuration			|SearchRepeat-configuration|
+integration			|SearchRepeat-integration|
+limitations			|SearchRepeat-limitations|
+known problems			|SearchRepeat-known-problems|
+todo				|SearchRepeat-todo|
+history				|SearchRepeat-history|
+
+==============================================================================
+DESCRIPTION					    *SearchRepeat-description*
+
+Overloads the 'n' and 'N' commands so that custom searches (other than the
+default search via /, ?, [g]*, [g]#) can be repeated. A change of the current
+search pattern or activation of a custom search makes that search the new type
+of search to be repeated, until the search type is changed again.
+
+HOW IT WORKS								     *
+
+SOURCE									     *
+(Original Vim tip, Stack Overflow answer, ...)
+
+SEE ALSO								     *
+(Plugins offering complementary functionality, or plugins using this library.)
+
+RELATED WORKS								     *
+(Alternatives from other authors, other approaches, references not used here.)
+
+==============================================================================
+USAGE							  *SearchRepeat-usage*
+
+To change the search type back to plain normal search (without changing the
+search pattern), just type '/<Enter>'.
+
+To set the current search type (in a custom search mapping): >
+    :call SearchRepeat#Set("\<Plug>MyCustomSearchMapping", "\<Plug>MyCustomOppositeSearchMapping", n)
+<
+To set the current search type (in a custom search mapping) and execute the
+(first, not the opposite) search mapping: >
+    :call SearchRepeat#Execute("\<Plug>MyCustomSearchMapping", "\<Plug>MyCustomOppositeSearchMapping", n)
+<
+The third argument n specifies how the mappings deal with an optional [count]
+that is passed to the 'n' / 'N' commands:
+    0: Doesn't handle count, single invocation only. No count is prepended to
+       the search mapping, which is invoked only once. (But the count itself
+       is still available through v:count.)
+    1: Doesn't handle count itself, invoke search mapping multiple times.
+    2: Handles count itself, prepend count before search mapping.
+
+An optional fourth argument supplies additional configuration in a dictionary;
+these key names are supported:
+- 'hlsearch' (type Boolean, default 1)
+   Flag whether to re-enable 'hlsearch' during repetition (which is not done
+   automatically because the repeated mapping is executed from within a
+   function, and not via feedkeys()). Set to 0 if your search mapping has
+   nothing to do with the built-in search functionality.
+
+EXAMPLE							*SearchRepeat-example*
+
+==============================================================================
+INSTALLATION					   *SearchRepeat-installation*
+
+This script is packaged as a |vimball|. If you have the "gunzip" decompressor
+in your PATH, simply edit the *.vmb.gz package in Vim; otherwise, decompress
+the archive first, e.g. using WinZip. Inside Vim, install by sourcing the
+vimball or via the |:UseVimball| command. >
+    vim SearchRepeat*.vmb.gz
+    :so %
+To uninstall, use the |:RmVimball| command.
+
+DEPENDENCIES					   *SearchRepeat-dependencies*
+
+- Requires Vim 7.0 or higher.
+
+==============================================================================
+CONFIGURATION					  *SearchRepeat-configuration*
+
+For a permanent configuration, put the following commands into your |vimrc|:
+configvar
+							  *SearchRepeat-remap*
+plugmap
+
+==============================================================================
+INTEGRATION					    *SearchRepeat-integration*
+
+==============================================================================
+LIMITATIONS					    *SearchRepeat-limitations*
+
+KNOWN PROBLEMS					 *SearchRepeat-known-problems*
+
+TODO							   *SearchRepeat-todo*
+
+IDEAS							  *SearchRepeat-ideas*
+
+==============================================================================
+HISTORY							*SearchRepeat-history*
+
+GOAL
+First published version.
+
+0.01	27-Jun-2008
+Started development.
+
+==============================================================================
+Copyright: (C) 2008-2014 Ingo Karkat
+The VIM LICENSE applies to this plugin; see |copyright|.
+
+Maintainer:	Ingo Karkat <ingo@karkat.de>
+==============================================================================
+ vim:tw=78:ts=8:ft=help:norl:

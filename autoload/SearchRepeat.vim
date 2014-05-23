@@ -3,12 +3,13 @@
 " DEPENDENCIES:
 "   - ingo/err.vim autoload script
 "
-" Copyright: (C) 2008-2013 Ingo Karkat
+" Copyright: (C) 2008-2014 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
+"	011	27-Apr-2014	Also handle :echoerr from repeated searches.
 "	010	08-Mar-2013	Use ingo#err#SetVimException() instead of
 "				returning the error message; this avoids the
 "				temporary global variable in the mapping.
@@ -108,7 +109,7 @@ function! SearchRepeat#Repeat( isOpposite )
 	if ! empty(l:keys)
 	    call feedkeys(l:keys)
 	endif
-    catch /^Vim\%((\a\+)\)\=:E/
+    catch /^Vim\%((\a\+)\)\=:/
 	call ingo#err#SetVimException()
 	return 0
     endtry

@@ -1,62 +1,16 @@
 " SearchRepeat.vim: Repeat the last type of search via n/N.
 "
-" DESCRIPTION:
-"   Overloads the 'n' and 'N' commands so that custom searches (other than the
-"   default search via /, ?, [g]*, [g]#) can be repeated. A change of the
-"   current search pattern or activation of a custom search makes that search
-"   the new type of search to be repeated, until the search type is changed
-"   again.
-"
-" USAGE:
-"   To change the search type back to plain normal search (without changing the
-"   search pattern), just type '/<Return>'.
-"
-" INSTALLATION:
 " DEPENDENCIES:
 "   - SearchRepeat.vim autoload script
 "   - ingo/err.vim autoload script
 "
-" CONFIGURATION:
-"   To set the current search type (in a custom search mapping):
-"	:call SearchRepeat#Set("\<Plug>MyCustomSearchMapping", "\<Plug>MyCustomOppositeSearchMapping", n)
-"
-"   To set the current search type (in a custom search mapping) and execute the
-"   (first, not the opposite) search mapping:
-"	:call SearchRepeat#Execute("\<Plug>MyCustomSearchMapping", "\<Plug>MyCustomOppositeSearchMapping", n)
-"
-"   The third argument n specifies how the mappings deal with an optional
-"   [count] that is passed to the 'n' / 'N' commands:
-"	0 Doesn't handle count, single invocation only.
-"	  No count is prepended to the search mapping, which is invoked only
-"	  once. (But the count itself is still available through v:count.)
-" 	1 Doesn't handle count itself, invoke search mapping multiple times.
-" 	2 Handles count itself, prepend count before search mapping.
-"
-"   An optional fourth argument supplies additional configuration in a
-"   dictionary; these key names are supported:
-"	- 'hlsearch' (type Boolean, default 1)
-"	  Flag whether to re-enable 'hlsearch' during repetition (which is not
-"	  done automatically because the repeated mapping is executed from
-"	  within a function, and not via feedkeys()). Set to 0 if your search
-"	  mapping has nothing to do with the built-in search functionality.
-"
-"   Note: When typed, [*#nN] open the fold at the search result, but inside a
-"   mapping or :normal this must be done explicitly via 'zv'. This plugin does
-"   nothing with folds when repeating searches; you have to deal with closed
-"   folds yourself (e.g. when you search() to somewhere, do a ':normal! zv' to
-"   open the fold at the match).
-"
-" LIMITATIONS:
-" ASSUMPTIONS:
-" KNOWN PROBLEMS:
-" TODO:
-"
-" Copyright: (C) 2008-2013 Ingo Karkat
+" Copyright: (C) 2008-2014 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
+"	020	28-Apr-2014	Split off documentation.
 "	019	05-Jun-2013	FIX: Passing of [count] of / and ? broke
 "				somewhere between Vim 7.3.000 and 7.3.823;
 "				completly rewrite the complex setup with a

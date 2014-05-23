@@ -9,6 +9,9 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
+"   1.00.012	24-May-2014	CHG: SearchRepeat#Register() now only takes the
+"				mapping suffix to reactivate, it prepends the
+"				new g:SearchRepeat_MappingPrefix itself.
 "	011	27-Apr-2014	Also handle :echoerr from repeated searches.
 "	010	08-Mar-2013	Use ingo#err#SetVimException() instead of
 "				returning the error message; this avoids the
@@ -75,7 +78,7 @@ function! SearchRepeat#Repeat( isOpposite )
 	    " Doesn't handle count, single invocation only.
 	elseif s:lastSearch[2] == 1
 	    " Doesn't handle count itself, invoke search command multiple times.
-	    let l:searchCommand = repeat( l:searchCommand, v:count )
+	    let l:searchCommand = repeat(l:searchCommand, v:count)
 	elseif s:lastSearch[2] == 2
 	    " Handles count itself, pass it through.
 	    let l:searchCommand = v:count . l:searchCommand
@@ -127,8 +130,8 @@ endfunction
 "- registration and context help ----------------------------------------------
 
 let s:registrations = {}
-function! SearchRepeat#Register( mapping, keysToActivate, keysToReactivate, description, helptext, relatedCommands )
-    let s:registrations[ a:mapping ] = [ a:keysToActivate, a:keysToReactivate, a:description, a:helptext, a:relatedCommands ]
+function! SearchRepeat#Register( mapping, mappingToActivate, suffixToReactivate, description, helptext, relatedCommands )
+    let s:registrations[ a:mapping ] = [ a:mappingToActivate, g:SearchRepeat_MappingPrefix . a:suffixToReactivate, a:description, a:helptext, a:relatedCommands ]
 endfunction
 
 function! s:SortByReactivation(i1, i2)
@@ -152,7 +155,7 @@ function! SearchRepeat#Help()
     echo "activation\tdescription\thelptext\t\t\t\t\trelated commands"
     echohl None
 
-    for [l:mapping, l:info] in sort( items(s:registrations), 's:SortByReactivation' )
+    for [l:mapping, l:info] in sort(items(s:registrations), 's:SortByReactivation')
 	if l:mapping == s:lastSearch[0]
 	    echohl ModeMsg
 	endif

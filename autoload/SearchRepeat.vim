@@ -12,6 +12,11 @@
 "   1.00.012	24-May-2014	CHG: SearchRepeat#Register() now only takes the
 "				mapping suffix to reactivate, it prepends the
 "				new g:SearchRepeat_MappingPrefix itself.
+"				Add SearchRepeat#Define() which simplifies the
+"				boilerplate code of SearchRepeat#Register() and
+"				the repeat reactivation mappings for next and
+"				previous matches into a single function call.
+"				Adapt <Plug>-mapping naming.
 "	011	27-Apr-2014	Also handle :echoerr from repeated searches.
 "	010	08-Mar-2013	Use ingo#err#SetVimException() instead of
 "				returning the error message; this avoids the
@@ -58,8 +63,21 @@
 "	002	07-Aug-2008	BF: Need to sort twice.
 "	001	05-Aug-2008	Split off autoload functions from plugin script.
 "				file creation
+let s:save_cpo = &cpo
+set cpo&vim
 
-let s:lastSearch = ["\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N", 2, {}]
+"- configuration ---------------------------------------------------------------
+
+" Need to repeat this here, as other custom search plugins may be sourced before
+" plugin/SearchRepeat.vim.
+if ! exists('g:SearchRepeat_MappingPrefix')
+    let g:SearchRepeat_MappingPrefix = 'gn'
+endif
+
+
+"- functions -------------------------------------------------------------------
+
+let s:lastSearch = ["\<Plug>(SearchRepeat_n)", "\<Plug>(SearchRepeat_N)", 2, {}]
 let s:lastSearchDescription = ''
 
 function! SearchRepeat#Set( mapping, oppositeMapping, howToHandleCount, ... )
@@ -95,19 +113,19 @@ function! SearchRepeat#Repeat( isOpposite )
 	" turn on 'hlsearch' (via a <silent> mapping, so it isn't echoed), unless
 	" the current search type explicitly opts out of this.
 	" Note: Only turn on 'hlsearch' if no Vim error occurred (like "E486:
-	" Pattern not found"); otherwise, the <Plug>SearchRepeat_hlsearch
+	" Pattern not found"); otherwise, the <Plug>(SearchRepeat_hlsearch)
 	" mapping (though <silent>) would clear a long error message which
 	" causes the Hit-Enter prompt. In case of a search error, there's
 	" nothing to highlight, anyway.
 	if get(s:lastSearch[3], 'hlsearch', 1)
-	    call feedkeys("\<Plug>SearchRepeat_hlsearch")
+	    call feedkeys("\<Plug>(SearchRepeat_hlsearch)")
 	endif
 
 	" Apart from the 'hlsearch' flag, arbitrary (mapped) key sequences can
 	" be appended via the 'keys' configuration. This could e.g. be used to
 	" implement the opposite of 'hlsearch', turning off search highlighting,
-	" by nnoremap <silent> <Plug>SearchHighlightingOff :nohlsearch<CR>, then
-	" setting 'keys' to "\<Plug>SearchHighlightingOff".
+	" by nnoremap <silent> <Plug>(SearchHighlightingOff) :nohlsearch<CR>, then
+	" setting 'keys' to "\<Plug>(SearchHighlightingOff)".
 	let l:keys = get(s:lastSearch[3], 'keys', '')
 	if ! empty(l:keys)
 	    call feedkeys(l:keys)
@@ -133,6 +151,17 @@ let s:registrations = {}
 function! SearchRepeat#Register( mapping, mappingToActivate, suffixToReactivate, description, helptext, relatedCommands )
     let s:registrations[ a:mapping ] = [ a:mappingToActivate, g:SearchRepeat_MappingPrefix . a:suffixToReactivate, a:description, a:helptext, a:relatedCommands ]
 endfunction
+
+function! SearchRepeat#Define( mappingNext, mappingToActivateNext, suffixToReactivateNext, descriptionNext, helptextNext, relatedCommandsNext,
+\                              mappingPrev, mappingToActivatePrev, suffixToReactivatePrev, descriptionPrev, helptextPrev, relatedCommandsPrev,
+\                              howToHandleCountAndOptions
+\)
+    execute printf('call SearchRepeat#Register("\%s", a:mappingToActivateNext, a:suffixToReactivateNext, a:descriptionNext, a:helptextNext, a:relatedCommandsNext)', a:mappingNext)
+    execute printf('call SearchRepeat#Register("\%s", a:mappingToActivatePrev, a:suffixToReactivatePrev, a:descriptionPrev, a:helptextPrev, a:relatedCommandsPrev)', a:mappingPrev)
+    execute printf('nnoremap <silent> %s%s :<C-u>call SearchRepeat#Execute("\%s", "\%s", %s)<CR>', g:SearchRepeat_MappingPrefix, a:suffixToReactivateNext, a:mappingNext, a:mappingPrev, a:howToHandleCountAndOptions)
+    execute printf('nnoremap <silent> %s%s :<C-u>call SearchRepeat#Execute("\%s", "\%s", %s)<CR>', g:SearchRepeat_MappingPrefix, a:suffixToReactivatePrev, a:mappingPrev, a:mappingNext, a:howToHandleCountAndOptions)
+endfunction
+
 
 function! s:SortByReactivation(i1, i2)
     let s1 = a:i1[1][1]
@@ -169,4 +198,6 @@ function! SearchRepeat#Help()
     endfor
 endfunction
 
+let &cpo = s:save_cpo
+unlet s:save_cpo
 " vim: set ts=8 sts=4 sw=4 noexpandtab ff=unix fdm=syntax :

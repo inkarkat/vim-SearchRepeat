@@ -2,6 +2,7 @@
 "
 " DEPENDENCIES:
 "   - ingo/err.vim autoload script
+"   - ingo/msg.vim autoload script
 "
 " Copyright: (C) 2008-2014 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
@@ -9,6 +10,11 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
+"   1.00.013	26-May-2014	Avoid "E716: Key not present in Dictionary"
+"				error when a search mapping hasn't been
+"				registered. Only issue a warning message when
+"				'verbose' is > 0.
+"				Handle empty a:suffixToReactivate.
 "   1.00.012	24-May-2014	CHG: SearchRepeat#Register() now only takes the
 "				mapping suffix to reactivate, it prepends the
 "				new g:SearchRepeat_MappingPrefix itself.
@@ -82,7 +88,14 @@ let s:lastSearchDescription = ''
 
 function! SearchRepeat#Set( mapping, oppositeMapping, howToHandleCount, ... )
     let s:lastSearch = [a:mapping, a:oppositeMapping, a:howToHandleCount, (a:0 ? a:1 : {})]
-    let s:lastSearchDescription = s:registrations[a:mapping][2]
+    if has_key(s:registrations, a:mapping)
+	let s:lastSearchDescription = s:registrations[a:mapping][2]
+    else
+	let s:lastSearchDescription = '???'
+	if &verbose > 0
+	    call ingo#msg#WarningMsg(printf('SearchRepeat: No registration found for %s', a:mapping))
+	endif
+    endif
 endfunction
 function! SearchRepeat#Execute( mapping, oppositeMapping, howToHandleCount, ... )
     call SearchRepeat#Set(a:mapping, a:oppositeMapping, a:howToHandleCount, (a:0 ? a:1 : {}))
@@ -149,7 +162,13 @@ endfunction
 
 let s:registrations = {}
 function! SearchRepeat#Register( mapping, mappingToActivate, suffixToReactivate, description, helptext, relatedCommands )
-    let s:registrations[ a:mapping ] = [ a:mappingToActivate, g:SearchRepeat_MappingPrefix . a:suffixToReactivate, a:description, a:helptext, a:relatedCommands ]
+    let s:registrations[ a:mapping ] = [
+    \   a:mappingToActivate,
+    \   (empty(a:suffixToReactivate) ? '' : g:SearchRepeat_MappingPrefix . a:suffixToReactivate),
+    \   a:description,
+    \   a:helptext,
+    \   a:relatedCommands
+    \]
 endfunction
 
 function! SearchRepeat#Define( mappingNext, mappingToActivateNext, suffixToReactivateNext, descriptionNext, helptextNext, relatedCommandsNext,
@@ -193,7 +212,10 @@ function! SearchRepeat#Help()
 	" just adds visual clutter to the list.
 	let l:description = substitute(l:info[2], '^\([/?]\)\(.*\)\1$', '\2', '')
 
-	echo l:info[1] . "\t" . l:info[0] . "\t" . l:description. s:FixedTabWidth(16, l:description, l:info[3]) . (empty(l:info[4]) ? '' : s:FixedTabWidth(48, l:info[3], l:info[4]))
+	echo l:info[1] . "\t" .
+	\   l:info[0] . "\t" .
+	\   l:description. s:FixedTabWidth(16, l:description, l:info[3]) .
+	\   (empty(l:info[4]) ? '' : s:FixedTabWidth(48, l:info[3], l:info[4]))
 	echohl None
     endfor
 endfunction

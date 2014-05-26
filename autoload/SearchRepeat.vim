@@ -10,6 +10,10 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
+"   1.10.014	27-May-2014	CHG: Add isOpposite flag to
+"				SearchRepeat#Execute() and remove the swapping
+"				of a:mappingNext and a:mappingPrev in the
+"				opposite mapping definition.
 "   1.00.013	26-May-2014	Avoid "E716: Key not present in Dictionary"
 "				error when a search mapping hasn't been
 "				registered. Only issue a warning message when
@@ -103,8 +107,12 @@ function! SearchRepeat#Set( mapping, oppositeMapping, howToHandleCount, ... )
 	endif
     endif
 endfunction
-function! SearchRepeat#Execute( mapping, oppositeMapping, howToHandleCount, ... )
-    call SearchRepeat#Set(a:mapping, a:oppositeMapping, a:howToHandleCount, (a:0 ? a:1 : {}))
+function! SearchRepeat#Execute( isOpposite, mapping, oppositeMapping, howToHandleCount, ... )
+    if a:isOpposite
+	call SearchRepeat#Set(a:oppositeMapping, a:mapping, a:howToHandleCount, (a:0 ? a:1 : {}))
+    else
+	call SearchRepeat#Set(a:mapping, a:oppositeMapping, a:howToHandleCount, (a:0 ? a:1 : {}))
+    endif
     call SearchRepeat#Repeat(0)
 endfunction
 function! SearchRepeat#Repeat( isOpposite )
@@ -157,12 +165,12 @@ function! SearchRepeat#Repeat( isOpposite )
 endfunction
 
 
-
 "- integration point for search type ------------------------------------------
 
 function! SearchRepeat#LastSearchDescription()
     return s:lastSearchDescription
 endfunction
+
 
 "- registration and context help ----------------------------------------------
 
@@ -186,8 +194,8 @@ function! SearchRepeat#Define( mappingNext, mappingToActivateNext, suffixToReact
 \)
     execute printf('call SearchRepeat#Register("\%s", a:mappingToActivateNext, a:suffixToReactivateNext, a:descriptionNext, a:helptextNext, a:relatedCommandsNext)', a:mappingNext)
     execute printf('call SearchRepeat#Register("\%s", a:mappingToActivatePrev, a:suffixToReactivatePrev, a:descriptionPrev, a:helptextPrev, a:relatedCommandsPrev)', a:mappingPrev)
-    execute printf('nnoremap <silent> %s%s :<C-u>call SearchRepeat#Execute("\%s", "\%s", %s)<CR>', g:SearchRepeat_MappingPrefix, a:suffixToReactivateNext, a:mappingNext, a:mappingPrev, a:howToHandleCountAndOptions)
-    execute printf('nnoremap <silent> %s%s :<C-u>call SearchRepeat#Execute("\%s", "\%s", %s)<CR>', g:SearchRepeat_MappingPrefix, a:suffixToReactivatePrev, a:mappingPrev, a:mappingNext, a:howToHandleCountAndOptions)
+    execute printf('nnoremap <silent> %s%s :<C-u>call SearchRepeat#Execute(0, "\%s", "\%s", %s)<CR>', g:SearchRepeat_MappingPrefix, a:suffixToReactivateNext, a:mappingNext, a:mappingPrev, a:howToHandleCountAndOptions)
+    execute printf('nnoremap <silent> %s%s :<C-u>call SearchRepeat#Execute(1, "\%s", "\%s", %s)<CR>', g:SearchRepeat_MappingPrefix, a:suffixToReactivatePrev, a:mappingNext, a:mappingPrev, a:howToHandleCountAndOptions)
 endfunction
 
 

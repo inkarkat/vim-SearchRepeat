@@ -10,6 +10,11 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
+"   1.10.022	27-May-2014	ENH: Add g:SearchRepeat_IsAlwaysForwardWith_n
+"				configuration to consistently always move
+"				forward / backward with n / N, regardless of
+"				whether the current search mode goes into the
+"				opposite direction.
 "   1.00.021	24-May-2014	Introduce g:SearchRepeat_MappingPrefix to allow
 "				customization of all repeat mappings.
 "				Adapt <Plug>-mapping naming.
@@ -86,6 +91,9 @@ let g:loaded_SearchRepeat = 1
 
 if ! exists('g:SearchRepeat_MappingPrefix')
     let g:SearchRepeat_MappingPrefix = 'gn'
+endif
+if ! exists('g:SearchRepeat_IsAlwaysForwardWith_n')
+    let g:SearchRepeat_IsAlwaysForwardWith_n = 0
 endif
 
 

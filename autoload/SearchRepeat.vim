@@ -14,6 +14,10 @@
 "				SearchRepeat#Execute() and remove the swapping
 "				of a:mappingNext and a:mappingPrev in the
 "				opposite mapping definition.
+"				Move SearchRepeat#RepeatSearch() to autoload
+"				script, and make it honor the
+"				g:SearchRepeat_IsAlwaysForwardWith_n
+"				configuration.
 "   1.00.013	26-May-2014	Avoid "E716: Key not present in Dictionary"
 "				error when a search mapping hasn't been
 "				registered. Only issue a warning message when
@@ -93,6 +97,27 @@ endif
 
 "- functions -------------------------------------------------------------------
 
+" Note: When typed, [*#nN] open the fold at the search result, but inside a mapping or
+" :normal this must be done explicitly via 'zv'.
+" The tricky thing here is that folds must only be opened when the jump
+" succeeded. The 'n' command doesn't abort the mapping chain, so we have to
+" explicitly check for a successful jump in a custom function.
+function! SearchRepeat#RepeatSearch( isOpposite )
+    let l:isReverse = (g:SearchRepeat_IsAlwaysForwardWith_n ?
+    \   (v:searchforward && a:isOpposite || ! v:searchforward && ! a:isOpposite) :
+    \   a:isOpposite
+    \)
+
+    let l:save_errmsg = v:errmsg
+    let v:errmsg = ''
+    execute 'normal!' (v:count ? v:count : '') . (l:isReverse ? 'N' : 'n')
+    if empty(v:errmsg)
+	let v:errmsg = l:save_errmsg
+	normal! zv
+    endif
+endfunction
+
+
 let s:lastSearch = ["\<Plug>(SearchRepeat_n)", "\<Plug>(SearchRepeat_N)", 2, {}]
 let s:lastSearchDescription = ''
 
@@ -108,12 +133,12 @@ function! SearchRepeat#Set( mapping, oppositeMapping, howToHandleCount, ... )
     endif
 endfunction
 function! SearchRepeat#Execute( isOpposite, mapping, oppositeMapping, howToHandleCount, ... )
-    if a:isOpposite
+    if a:isOpposite && ! g:SearchRepeat_IsAlwaysForwardWith_n
 	call SearchRepeat#Set(a:oppositeMapping, a:mapping, a:howToHandleCount, (a:0 ? a:1 : {}))
     else
 	call SearchRepeat#Set(a:mapping, a:oppositeMapping, a:howToHandleCount, (a:0 ? a:1 : {}))
     endif
-    call SearchRepeat#Repeat(0)
+    call SearchRepeat#Repeat(g:SearchRepeat_IsAlwaysForwardWith_n ? a:isOpposite : 0)
 endfunction
 function! SearchRepeat#Repeat( isOpposite )
     let l:searchCommand = s:lastSearch[ a:isOpposite ]

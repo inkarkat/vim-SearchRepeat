@@ -10,6 +10,9 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
+"   1.00.021	24-May-2014	Introduce g:SearchRepeat_MappingPrefix to allow
+"				customization of all repeat mappings.
+"				Adapt <Plug>-mapping naming.
 "	020	28-Apr-2014	Split off documentation.
 "	019	05-Jun-2013	FIX: Passing of [count] of / and ? broke
 "				somewhere between Vim 7.3.000 and 7.3.823;
@@ -79,6 +82,15 @@ if exists('g:loaded_SearchRepeat') || (v:version < 700)
 endif
 let g:loaded_SearchRepeat = 1
 
+"- configuration ---------------------------------------------------------------
+
+if ! exists('g:SearchRepeat_MappingPrefix')
+    let g:SearchRepeat_MappingPrefix = 'gn'
+endif
+
+
+"- mappings --------------------------------------------------------------------
+
 " Note: The mappings cannot be executed with ':normal!', so that the <Plug>
 " mappings apply. The [nN] commands must be executed without remapping, or we
 " end up in endless recursion. Thus, define noremapping mappings for [nN].
@@ -96,16 +108,15 @@ function! s:RepeatSearch( cmd )
 	normal! zv
     endif
 endfunction
-nnoremap <silent> <Plug>SearchRepeat_n :<C-u>call <SID>RepeatSearch('n')<CR>
-nnoremap <silent> <Plug>SearchRepeat_N :<C-u>call <SID>RepeatSearch('N')<CR>
+nnoremap <silent> <Plug>(SearchRepeat_n) :<C-u>call <SID>RepeatSearch('n')<CR>
+nnoremap <silent> <Plug>(SearchRepeat_N) :<C-u>call <SID>RepeatSearch('N')<CR>
 
 " During repetition, 'hlsearch' must be explicitly turned on, but without
 " echoing of the command. This is the <silent> mapping that does this inside
 " SearchRepeat#Repeat().
-nnoremap <silent> <Plug>SearchRepeat_hlsearch :<C-U>if &hlsearch<Bar>set hlsearch<Bar>endif<CR>
-inoremap <silent> <Plug>SearchRepeat_hlsearch <C-\><C-O>:<C-U>if &hlsearch<Bar>set hlsearch<Bar>endif<CR>
+nnoremap <silent> <Plug>(SearchRepeat_hlsearch) :<C-U>if &hlsearch<Bar>set hlsearch<Bar>endif<CR>
+inoremap <silent> <Plug>(SearchRepeat_hlsearch) <C-\><C-O>:<C-U>if &hlsearch<Bar>set hlsearch<Bar>endif<CR>
 
-" n/N			Repeat the last type of search.
 nnoremap <silent> n :<C-u>if ! SearchRepeat#Repeat(0)<Bar>echoerr ingo#err#Get()<Bar>endif<CR>
 nnoremap <silent> N :<C-u>if ! SearchRepeat#Repeat(1)<Bar>echoerr ingo#err#Get()<Bar>endif<CR>
 
@@ -137,7 +148,7 @@ function! s:SearchCommand( keys )
     " the standard search (SearchAsQuickJumpNext) are interested in it.
     let g:lastSearchCount = v:count
 
-    call SearchRepeat#Set("\<Plug>SearchRepeat_n", "\<Plug>SearchRepeat_N", 2)
+    call SearchRepeat#Set("\<Plug>(SearchRepeat_n)", "\<Plug>(SearchRepeat_N)", 2)
 
     return a:keys
 endfunction
@@ -153,11 +164,9 @@ nnoremap <silent> <script> g* <SID>(SearchRepeat_GStar)<SID>(SetRepeat)
 xnoremap <silent> <script>  *  <SID>(SearchRepeat_Star)<SID>(SetRepeat)
 
 
-" gn			List all registered search types, keys to (re-)activate,
-"			and the currently active search type.
 nnoremap <silent> <Plug>(SearchRepeatHelp) :<C-U>call SearchRepeat#Help()<CR>
 if ! hasmapto('<Plug>(SearchRepeatHelp)', 'n')
-    nmap gn <Plug>(SearchRepeatHelp)
+    execute printf('nmap %s <Plug>(SearchRepeatHelp)', g:SearchRepeat_MappingPrefix)
 endif
 
 " vim: set ts=8 sts=4 sw=4 noexpandtab ff=unix fdm=syntax :

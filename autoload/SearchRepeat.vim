@@ -15,6 +15,12 @@
 "				registered. Only issue a warning message when
 "				'verbose' is > 0.
 "				Handle empty a:suffixToReactivate.
+"				Copy registration of the <Plug>(SearchRepeat_n)
+"				from SearchDefaultSearch.vim (without the custom
+"				gn/, gn? reactivation mappings). The built-in /,
+"				? searches should be registered all the time,
+"				not just when the special gn/ and gn? mappings
+"				of that plugin are defined.
 "   1.00.012	24-May-2014	CHG: SearchRepeat#Register() now only takes the
 "				mapping suffix to reactivate, it prepends the
 "				new g:SearchRepeat_MappingPrefix itself.
@@ -160,7 +166,10 @@ endfunction
 
 "- registration and context help ----------------------------------------------
 
-let s:registrations = {}
+let s:registrations = {
+\   "\<Plug>(SearchRepeat_n)": ['/', '', 'Standard search forward', '', ''],
+\   "\<Plug>(SearchRepeat_N)": ['?', '', 'Standard search backward', '', '']
+\}
 function! SearchRepeat#Register( mapping, mappingToActivate, suffixToReactivate, description, helptext, relatedCommands )
     let s:registrations[ a:mapping ] = [
     \   a:mappingToActivate,

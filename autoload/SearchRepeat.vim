@@ -102,7 +102,7 @@ endif
 " The tricky thing here is that folds must only be opened when the jump
 " succeeded. The 'n' command doesn't abort the mapping chain, so we have to
 " explicitly check for a successful jump in a custom function.
-function! SearchRepeat#RepeatSearch( isOpposite )
+function! SearchRepeat#RepeatSearch( isOpposite, ... )
     let l:isReverse = (g:SearchRepeat_IsAlwaysForwardWith_n ?
     \   (v:searchforward && a:isOpposite || ! v:searchforward && ! a:isOpposite) :
     \   a:isOpposite
@@ -113,7 +113,7 @@ function! SearchRepeat#RepeatSearch( isOpposite )
     execute 'normal!' (v:count ? v:count : '') . (l:isReverse ? 'N' : 'n')
     if empty(v:errmsg)
 	let v:errmsg = l:save_errmsg
-	normal! zv
+	execute 'normal! zv' . (a:0 ? a:1 : '')
     endif
 endfunction
 

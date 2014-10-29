@@ -18,6 +18,9 @@
 "				script, and make it honor the
 "				g:SearchRepeat_IsAlwaysForwardWith_n
 "				configuration.
+"				FIX: SearchRepeat#Execute() needs to return
+"				status of SearchRepeat#Repeat() to have clients
+"				:echoerr any error.
 "   1.00.013	26-May-2014	Avoid "E716: Key not present in Dictionary"
 "				error when a search mapping hasn't been
 "				registered. Only issue a warning message when
@@ -103,7 +106,7 @@ endif
 " succeeded. The 'n' command doesn't abort the mapping chain, so we have to
 " explicitly check for a successful jump in a custom function.
 function! SearchRepeat#RepeatSearch( isOpposite, ... )
-    let l:isReverse = (g:SearchRepeat_IsAlwaysForwardWith_n ?
+    let l:isReverse = (a:0 || g:SearchRepeat_IsAlwaysForwardWith_n ?
     \   (v:searchforward && a:isOpposite || ! v:searchforward && ! a:isOpposite) :
     \   a:isOpposite
     \)
@@ -138,7 +141,7 @@ function! SearchRepeat#Execute( isOpposite, mapping, oppositeMapping, howToHandl
     else
 	call SearchRepeat#Set(a:mapping, a:oppositeMapping, a:howToHandleCount, (a:0 ? a:1 : {}))
     endif
-    call SearchRepeat#Repeat(g:SearchRepeat_IsAlwaysForwardWith_n ? a:isOpposite : 0)
+    return SearchRepeat#Repeat(g:SearchRepeat_IsAlwaysForwardWith_n ? a:isOpposite : 0)
 endfunction
 function! SearchRepeat#Repeat( isOpposite )
     let l:searchCommand = s:lastSearch[ a:isOpposite ]
@@ -219,8 +222,8 @@ function! SearchRepeat#Define( mappingNext, mappingToActivateNext, suffixToReact
 \)
     execute printf('call SearchRepeat#Register("\%s", a:mappingToActivateNext, a:suffixToReactivateNext, a:descriptionNext, a:helptextNext, a:relatedCommandsNext)', a:mappingNext)
     execute printf('call SearchRepeat#Register("\%s", a:mappingToActivatePrev, a:suffixToReactivatePrev, a:descriptionPrev, a:helptextPrev, a:relatedCommandsPrev)', a:mappingPrev)
-    execute printf('nnoremap <silent> %s%s :<C-u>call SearchRepeat#Execute(0, "\%s", "\%s", %s)<CR>', g:SearchRepeat_MappingPrefix, a:suffixToReactivateNext, a:mappingNext, a:mappingPrev, a:howToHandleCountAndOptions)
-    execute printf('nnoremap <silent> %s%s :<C-u>call SearchRepeat#Execute(1, "\%s", "\%s", %s)<CR>', g:SearchRepeat_MappingPrefix, a:suffixToReactivatePrev, a:mappingNext, a:mappingPrev, a:howToHandleCountAndOptions)
+    execute printf('nnoremap <silent> %s%s :<C-u>if ! SearchRepeat#Execute(0, "\%s", "\%s", %s)<Bar>echoerr ingo#err#Get()<Bar>endif<CR>', g:SearchRepeat_MappingPrefix, a:suffixToReactivateNext, a:mappingNext, a:mappingPrev, a:howToHandleCountAndOptions)
+    execute printf('nnoremap <silent> %s%s :<C-u>if ! SearchRepeat#Execute(1, "\%s", "\%s", %s)<Bar>echoerr ingo#err#Get()<Bar>endif<CR>', g:SearchRepeat_MappingPrefix, a:suffixToReactivatePrev, a:mappingNext, a:mappingPrev, a:howToHandleCountAndOptions)
 endfunction
 
 

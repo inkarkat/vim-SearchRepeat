@@ -40,6 +40,13 @@ SEE ALSO								     *
   for special search modes. Check out its plugin page for a full list of
   custom searches powered by it.
 
+RELATED WORKS								     *
+
+- If you just want to change the n/N direction behavior, you can use the
+  following (source: http://article.gmane.org/gmane.editors.vim.devel/37715): >
+    noremap <expr> n 'Nn'[v:searchforward]
+    noremap <expr> N 'nN'[v:searchforward]
+<
 ==============================================================================
 USAGE							  *SearchRepeat-usage*
 

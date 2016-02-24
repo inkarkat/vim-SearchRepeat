@@ -1,0 +1,3 @@
+autoload/SearchRepeat.vim
+plugin/SearchRepeat.vim
+doc/SearchRepeat.txt

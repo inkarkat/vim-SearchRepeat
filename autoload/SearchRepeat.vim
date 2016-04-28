@@ -4,12 +4,22 @@
 "   - ingo/err.vim autoload script
 "   - ingo/msg.vim autoload script
 "
-" Copyright: (C) 2008-2014 Ingo Karkat
+" Copyright: (C) 2008-2016 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
+"   2.00.016	29-Apr-2016	CHG: Simplify SearchRepeat#Define() API: Get rid
+"				of duplicate suffixes, descriptions, helptexts,
+"				related commands for next / prev mappings.
+"				Instead, forward / backward search is now
+"				handled by separate gn / gN mapping prefixes.
+"				CHG: Mapping registration only stores the "Next"
+"				mapping, and the gn help command only lists
+"				those (to reduce clutter and duplication). The
+"				"Prev" mapping is now stored in
+"				s:reverseRegistrations.
 "   1.11.015	30-Oct-2014	FIX: v:searchforward requires Vim 7.2; don't
 "				support the g:SearchRepeat_IsAlwaysForwardWith_n
 "				configuration in older versions.
@@ -96,8 +106,11 @@ set cpo&vim
 
 " Need to repeat this here, as other custom search plugins may be sourced before
 " plugin/SearchRepeat.vim.
-if ! exists('g:SearchRepeat_MappingPrefix')
-    let g:SearchRepeat_MappingPrefix = 'gn'
+if ! exists('g:SearchRepeat_MappingPrefixNext')
+    let g:SearchRepeat_MappingPrefixNext = 'gn'
+endif
+if ! exists('g:SearchRepeat_MappingPrefixPrev')
+    let g:SearchRepeat_MappingPrefixPrev = 'gN'
 endif
 
 
@@ -131,6 +144,8 @@ function! SearchRepeat#Set( mapping, oppositeMapping, howToHandleCount, ... )
     let s:lastSearch = [a:mapping, a:oppositeMapping, a:howToHandleCount, (a:0 ? a:1 : {})]
     if has_key(s:registrations, a:mapping)
 	let s:lastSearchDescription = s:registrations[a:mapping][2]
+    elseif has_key(s:reverseRegistrations, a:mapping) && has_key(s:registrations, s:reverseRegistrations[a:mapping])
+	let s:lastSearchDescription = s:registrations[s:reverseRegistrations[a:mapping]][2]
     else
 	let s:lastSearchDescription = '???'
 	if &verbose > 0
@@ -205,28 +220,23 @@ endfunction
 
 "- registration and context help ----------------------------------------------
 
-let s:registrations = {
-\   "\<Plug>(SearchRepeat_n)": ['/', '', 'Standard search forward', '', ''],
-\   "\<Plug>(SearchRepeat_N)": ['?', '', 'Standard search backward', '', '']
-\}
-function! SearchRepeat#Register( mapping, mappingToActivate, suffixToReactivate, description, helptext, relatedCommands )
-    let s:registrations[ a:mapping ] = [
+let s:registrations = {"\<Plug>(SearchRepeat_n)": ['/', '', 'Standard search', '', '']}
+let s:reverseRegistrations = {"\<Plug>(SearchRepeat_N)": "\<Plug>(SearchRepeat_n)"}
+function! SearchRepeat#Register( mappingNext, mappingPrev, mappingToActivate, suffixToReactivate, description, helptext, relatedCommands )
+    let s:registrations[ a:mappingNext ] = [
     \   a:mappingToActivate,
-    \   (empty(a:suffixToReactivate) ? '' : g:SearchRepeat_MappingPrefix . a:suffixToReactivate),
+    \   a:suffixToReactivate,
     \   a:description,
     \   a:helptext,
     \   a:relatedCommands
     \]
+    let s:reverseRegistrations[ a:mappingPrev ] = a:mappingNext
 endfunction
 
-function! SearchRepeat#Define( mappingNext, mappingToActivateNext, suffixToReactivateNext, descriptionNext, helptextNext, relatedCommandsNext,
-\                              mappingPrev, mappingToActivatePrev, suffixToReactivatePrev, descriptionPrev, helptextPrev, relatedCommandsPrev,
-\                              howToHandleCountAndOptions
-\)
-    execute printf('call SearchRepeat#Register("\%s", a:mappingToActivateNext, a:suffixToReactivateNext, a:descriptionNext, a:helptextNext, a:relatedCommandsNext)', a:mappingNext)
-    execute printf('call SearchRepeat#Register("\%s", a:mappingToActivatePrev, a:suffixToReactivatePrev, a:descriptionPrev, a:helptextPrev, a:relatedCommandsPrev)', a:mappingPrev)
-    execute printf('nnoremap <silent> %s%s :<C-u>if ! SearchRepeat#Execute(0, "\%s", "\%s", %s)<Bar>echoerr ingo#err#Get()<Bar>endif<CR>', g:SearchRepeat_MappingPrefix, a:suffixToReactivateNext, a:mappingNext, a:mappingPrev, a:howToHandleCountAndOptions)
-    execute printf('nnoremap <silent> %s%s :<C-u>if ! SearchRepeat#Execute(1, "\%s", "\%s", %s)<Bar>echoerr ingo#err#Get()<Bar>endif<CR>', g:SearchRepeat_MappingPrefix, a:suffixToReactivatePrev, a:mappingNext, a:mappingPrev, a:howToHandleCountAndOptions)
+function! SearchRepeat#Define( mappingNext, mappingPrev, mappingToActivate, suffixToReactivate, description, helptext, relatedCommands, howToHandleCountAndOptions )
+    execute printf('call SearchRepeat#Register("\%s", "\%s", a:mappingToActivate, a:suffixToReactivate, a:description, a:helptext, a:relatedCommands)', a:mappingNext, a:mappingPrev)
+    execute printf('nnoremap <silent> %s%s :<C-u>if ! SearchRepeat#Execute(0, "\%s", "\%s", %s)<Bar>echoerr ingo#err#Get()<Bar>endif<CR>', g:SearchRepeat_MappingPrefixNext, a:suffixToReactivate, a:mappingNext, a:mappingPrev, a:howToHandleCountAndOptions)
+    execute printf('nnoremap <silent> %s%s :<C-u>if ! SearchRepeat#Execute(1, "\%s", "\%s", %s)<Bar>echoerr ingo#err#Get()<Bar>endif<CR>', g:SearchRepeat_MappingPrefixPrev, a:suffixToReactivate, a:mappingNext, a:mappingPrev, a:howToHandleCountAndOptions)
 endfunction
 
 
@@ -256,13 +266,11 @@ function! SearchRepeat#Help()
 	    echohl ModeMsg
 	endif
 
-	" Strip off the /.../ or ?...? indicator for the search direction; it
-	" just adds visual clutter to the list.
-	let l:description = substitute(l:info[2], '^\([/?]\)\(.*\)\1$', '\2', '')
+	let l:mappingToReactivate = (empty(l:info[1]) ? '' : g:SearchRepeat_MappingPrefixNext . l:info[1])
 
-	echo l:info[1] . "\t" .
+	echo l:mappingToReactivate . "\t" .
 	\   l:info[0] . "\t" .
-	\   l:description. s:FixedTabWidth(16, l:description, l:info[3]) .
+	\   l:info[2]. s:FixedTabWidth(16, l:info[2], l:info[3]) .
 	\   (empty(l:info[4]) ? '' : s:FixedTabWidth(48, l:info[3], l:info[4]))
 	echohl None
     endfor

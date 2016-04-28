@@ -122,7 +122,7 @@ the current search direction, i.e. have |n| always move forward and |N| always
 move backward. This can be achieved for both built-in and custom searches by
 setting: >
     let g:SearchRepeat_IsAlwaysForwardWith_n = 1
-<
+Note: This requires Vim 7.2 or later.
 							  *SearchRepeat-remap*
 						*g:SearchRepeat_MappingPrefix*
 To change the default mapping prefix, use: >
@@ -182,6 +182,10 @@ IDEAS							  *SearchRepeat-ideas*
 
 ==============================================================================
 HISTORY							*SearchRepeat-history*
+
+1.11	RELEASEME
+- FIX: v:searchforward requires Vim 7.2; don't support the
+  g:SearchRepeat_IsAlwaysForwardWith_n configuration in older versions.
 
 1.10	31-May-2014
 - CHG: Add isOpposite flag to SearchRepeat#Execute() and remove the swapping

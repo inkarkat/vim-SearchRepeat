@@ -2,6 +2,7 @@
 "
 " DEPENDENCIES:
 "   - ingo/err.vim autoload script
+"   - ingo/escape/command.vim autoload script
 "   - ingo/msg.vim autoload script
 "
 " Copyright: (C) 2008-2016 Ingo Karkat
@@ -20,6 +21,9 @@
 "				those (to reduce clutter and duplication). The
 "				"Prev" mapping is now stored in
 "				s:reverseRegistrations.
+"				Use ingo#escape#command#mapescape() to process
+"				a:suffixToReactivate instead of prepending a
+"				backslash; this works (better) with "|".
 "   1.11.015	30-Oct-2014	FIX: v:searchforward requires Vim 7.2; don't
 "				support the g:SearchRepeat_IsAlwaysForwardWith_n
 "				configuration in older versions.

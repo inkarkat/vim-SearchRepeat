@@ -10,6 +10,9 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
+"   1.11.015	30-Oct-2014	FIX: v:searchforward requires Vim 7.2; don't
+"				support the g:SearchRepeat_IsAlwaysForwardWith_n
+"				configuration in older versions.
 "   1.10.014	27-May-2014	CHG: Add isOpposite flag to
 "				SearchRepeat#Execute() and remove the swapping
 "				of a:mappingNext and a:mappingPrev in the
@@ -106,7 +109,7 @@ endif
 " succeeded. The 'n' command doesn't abort the mapping chain, so we have to
 " explicitly check for a successful jump in a custom function.
 function! SearchRepeat#RepeatSearch( isOpposite, ... )
-    let l:isReverse = (a:0 || g:SearchRepeat_IsAlwaysForwardWith_n ?
+    let l:isReverse = ((a:0 || g:SearchRepeat_IsAlwaysForwardWith_n) && v:version >= 702 ?
     \   (v:searchforward && a:isOpposite || ! v:searchforward && ! a:isOpposite) :
     \   a:isOpposite
     \)

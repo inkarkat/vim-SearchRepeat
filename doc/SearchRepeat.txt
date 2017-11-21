@@ -74,18 +74,16 @@ from a mapping), and then append the |zz| command: >
 <
 Then, integrate these into SearchRepeat, using gnzz and gnzZ to activate them: >
     call SearchRepeat#Define(
-    \   '<Plug>(SearchAtCenterOfWindowNext)', '', 'zz', '/win-center/', 'Search forward,  position at center of window', '',
-    \   '<Plug>(SearchAtCenterOfWindowPrev)', '', 'zZ', '?win-center?', 'Search backward, position at center of window', '',
+    \   '<Plug>(SearchAtCenterOfWindowNext)', '<Plug>(SearchAtCenterOfWindowPrev)',
+    \	'', 'zz', 'win-center', 'Search, position at center of window', '',
     \   2
     \)
 <
-The |gn| command will now show the (two forward / backward variants of the)
-newly added custom search in addition to the built-in standard search:
+The |gn| command will now show the newly added custom search in addition to
+the built-in standard search:
 activation	description	helptext ~
-	/	Standard search forward ~
-	?	Standard search backward ~
-gnzz		win-center	Search forward,  position at center of window ~
-gnzZ		win-center	Search backward, position at center of window ~
+	/	Standard search ~
+gnzz		win-center	Search, position at center of window ~
 
 To activate, search for /something, then press gnzz. From now on, the |n| /
 |N| commands will also center the match (and the gnzz search type is
@@ -124,9 +122,10 @@ setting: >
     let g:SearchRepeat_IsAlwaysForwardWith_n = 1
 Note: This requires Vim 7.2 or later.
 							  *SearchRepeat-remap*
-						*g:SearchRepeat_MappingPrefix*
-To change the default mapping prefix, use: >
-    let g:SearchRepeat_MappingPrefix = 'gn'
+	 *g:SearchRepeat_MappingPrefixNext* *g:SearchRepeat_MappingPrefixPrev*
+To change the default mapping prefixes for forward / backward search, use: >
+    let g:SearchRepeat_MappingPrefixNext = 'gn'
+    let g:SearchRepeat_MappingPrefixPrev = 'gN'
 This will affect all SearchRepeat integrations done by custom searches, and by
 default also the |gn| list of all registered search types. To change the
 latter one separately, use: >
@@ -183,7 +182,22 @@ IDEAS							  *SearchRepeat-ideas*
 ==============================================================================
 HISTORY							*SearchRepeat-history*
 
-1.11	RELEASEME
+2.00	RELEASEME
+- CHG: Split g:SearchRepeat_MappingPrefix into two
+  g:SearchRepeat_MappingPrefixNext and g:SearchRepeat_MappingPrefixPrev. With
+  this, custom searches only need to register a single suffix for forward /
+  backward searches. This both frees up keys (which I'm running out of with my
+  many custom searches), and enables non-alphabetic suffixes
+  (SearchForExpr.vim is now using gn= instead of gne / gnE).
+- CHG: Simplify SearchRepeat#Define() API: Get rid of duplicate suffixes,
+  descriptions, helptexts, related commands for next / prev mappings. Instead,
+  forward / backward search is now handled by separate gn / gN mapping
+  prefixes.
+- CHG: Mapping registration only stores the "Next" mapping, and the gn help
+  command only lists those (to reduce clutter and duplication). The "Prev"
+  mapping is now stored in s:reverseRegistrations.
+
+1.11	29-Apr-2016
 - FIX: v:searchforward requires Vim 7.2; don't support the
   g:SearchRepeat_IsAlwaysForwardWith_n configuration in older versions.
 
@@ -203,7 +217,7 @@ First published version.
 Started development.
 
 ==============================================================================
-Copyright: (C) 2008-2014 Ingo Karkat
+Copyright: (C) 2008-2016 Ingo Karkat
 The VIM LICENSE applies to this plugin; see |copyright|.
 
 Maintainer:	Ingo Karkat <ingo@karkat.de>

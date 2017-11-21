@@ -4,12 +4,14 @@
 "   - SearchRepeat.vim autoload script
 "   - ingo/err.vim autoload script
 "
-" Copyright: (C) 2008-2016 Ingo Karkat
+" Copyright: (C) 2008-2017 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
+"   2.00.024	22-Nov-2017	Refactoring: Extract
+"				SearchRepeat#ResetToStandardSearch().
 "   2.00.023	29-Apr-2016	CHG: Split g:SearchRepeat_MappingPrefix into two
 "				g:SearchRepeat_MappingPrefixNext and
 "				g:SearchRepeat_MappingPrefixPrev. With this,
@@ -155,7 +157,7 @@ function! s:SearchCommand( keys )
     " the standard search (SearchAsQuickJumpNext) are interested in it.
     let g:lastSearchCount = v:count
 
-    call SearchRepeat#Set("\<Plug>(SearchRepeat_n)", "\<Plug>(SearchRepeat_N)", 2)
+    call SearchRepeat#ResetToStandardSearch()
 
     return a:keys
 endfunction

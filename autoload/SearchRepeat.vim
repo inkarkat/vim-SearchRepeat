@@ -12,7 +12,11 @@
 "
 " REVISION	DATE		REMARKS
 "   2.00.017	22-Nov-2017	Refactoring: Extract
-"				SearchRepeat#RevertToStandardSearch().
+"				SearchRepeat#ResetToStandardSearch().
+"				Remember the contents of @/ in
+"				s:lastSearchPattern and reset to standard search
+"				when it changed (e.g. by * / g*, or plugins like
+"				my SearchAlternatives.vim).
 "   2.00.016	29-Apr-2016	CHG: Simplify SearchRepeat#Define() API: Get rid
 "				of duplicate suffixes, descriptions, helptexts,
 "				related commands for next / prev mappings.
@@ -144,12 +148,14 @@ endfunction
 
 let s:lastSearch = ["\<Plug>(SearchRepeat_n)", "\<Plug>(SearchRepeat_N)", 2, {}]
 let s:lastSearchDescription = ''
+let s:lastSearchPattern = ''
 
-function! SearchRepeat#RevertToStandardSearch()
+function! SearchRepeat#ResetToStandardSearch()
     call SearchRepeat#Set("\<Plug>(SearchRepeat_n)", "\<Plug>(SearchRepeat_N)", 2)
 endfunction
 function! SearchRepeat#Set( mapping, oppositeMapping, howToHandleCount, ... )
     let s:lastSearch = [a:mapping, a:oppositeMapping, a:howToHandleCount, (a:0 ? a:1 : {})]
+    let s:lastSearchPattern = @/
     if has_key(s:registrations, a:mapping)
 	let s:lastSearchDescription = s:registrations[a:mapping][2]
     elseif has_key(s:reverseRegistrations, a:mapping) && has_key(s:registrations, s:reverseRegistrations[a:mapping])
@@ -170,6 +176,10 @@ function! SearchRepeat#Execute( isOpposite, mapping, oppositeMapping, howToHandl
     return SearchRepeat#Repeat(g:SearchRepeat_IsAlwaysForwardWith_n ? a:isOpposite : 0)
 endfunction
 function! SearchRepeat#Repeat( isOpposite )
+    if @/ !=# s:lastSearchPattern
+	call SearchRepeat#ResetToStandardSearch()
+    endif
+
     let l:searchCommand = s:lastSearch[ a:isOpposite ]
 
     if v:count > 0

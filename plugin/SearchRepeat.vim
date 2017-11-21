@@ -12,6 +12,8 @@
 " REVISION	DATE		REMARKS
 "   2.00.024	22-Nov-2017	Refactoring: Extract
 "				SearchRepeat#ResetToStandardSearch().
+"				Reset to standard search is now configurable via
+"				g:SearchRepeat_IsResetToStandardSearch.
 "   2.00.023	29-Apr-2016	CHG: Split g:SearchRepeat_MappingPrefix into two
 "				g:SearchRepeat_MappingPrefixNext and
 "				g:SearchRepeat_MappingPrefixPrev. With this,
@@ -110,6 +112,10 @@ endif
 if ! exists('g:SearchRepeat_IsAlwaysForwardWith_n')
     let g:SearchRepeat_IsAlwaysForwardWith_n = 0
 endif
+if ! exists('g:SearchRepeat_IsResetToStandardSearch')
+    let g:SearchRepeat_IsResetToStandardSearch = 1
+endif
+
 
 
 "- mappings --------------------------------------------------------------------

@@ -5,12 +5,14 @@
 "   - ingo/escape/command.vim autoload script
 "   - ingo/msg.vim autoload script
 "
-" Copyright: (C) 2008-2016 Ingo Karkat
+" Copyright: (C) 2008-2017 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
+"   2.00.017	22-Nov-2017	Refactoring: Extract
+"				SearchRepeat#RevertToStandardSearch().
 "   2.00.016	29-Apr-2016	CHG: Simplify SearchRepeat#Define() API: Get rid
 "				of duplicate suffixes, descriptions, helptexts,
 "				related commands for next / prev mappings.
@@ -143,6 +145,9 @@ endfunction
 let s:lastSearch = ["\<Plug>(SearchRepeat_n)", "\<Plug>(SearchRepeat_N)", 2, {}]
 let s:lastSearchDescription = ''
 
+function! SearchRepeat#RevertToStandardSearch()
+    call SearchRepeat#Set("\<Plug>(SearchRepeat_n)", "\<Plug>(SearchRepeat_N)", 2)
+endfunction
 function! SearchRepeat#Set( mapping, oppositeMapping, howToHandleCount, ... )
     let s:lastSearch = [a:mapping, a:oppositeMapping, a:howToHandleCount, (a:0 ? a:1 : {})]
     if has_key(s:registrations, a:mapping)

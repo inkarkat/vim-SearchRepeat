@@ -21,9 +21,8 @@
 "				those (to reduce clutter and duplication). The
 "				"Prev" mapping is now stored in
 "				s:reverseRegistrations.
-"				Use ingo#escape#command#mapescape() to process
-"				a:suffixToReactivate instead of prepending a
-"				backslash; this works (better) with "|".
+"				Use ingo#escape#command#mapunescape() when
+"				listing a:suffixToReactivate.
 "   1.11.015	30-Oct-2014	FIX: v:searchforward requires Vim 7.2; don't
 "				support the g:SearchRepeat_IsAlwaysForwardWith_n
 "				configuration in older versions.
@@ -272,7 +271,7 @@ function! SearchRepeat#Help()
 
 	let l:mappingToReactivate = (empty(l:info[1]) ? '' : g:SearchRepeat_MappingPrefixNext . l:info[1])
 
-	echo l:mappingToReactivate . "\t" .
+	echo ingo#escape#command#mapunescape(l:mappingToReactivate) . "\t" .
 	\   l:info[0] . "\t" .
 	\   l:info[2]. s:FixedTabWidth(16, l:info[2], l:info[3]) .
 	\   (empty(l:info[4]) ? '' : s:FixedTabWidth(48, l:info[3], l:info[4]))

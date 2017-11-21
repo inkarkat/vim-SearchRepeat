@@ -4,12 +4,21 @@
 "   - SearchRepeat.vim autoload script
 "   - ingo/err.vim autoload script
 "
-" Copyright: (C) 2008-2014 Ingo Karkat
+" Copyright: (C) 2008-2016 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
+"   2.00.023	29-Apr-2016	CHG: Split g:SearchRepeat_MappingPrefix into two
+"				g:SearchRepeat_MappingPrefixNext and
+"				g:SearchRepeat_MappingPrefixPrev. With this,
+"				custom searches only need to register a single
+"				suffix for forward / backward searches. This
+"				both frees up keys (which I'm running out of
+"				with my many custom searches), and enables
+"				non-alphabetic suffixes (SearchForExpr.vim is
+"				now using gn= instead of gne / gnE).
 "   1.10.022	27-May-2014	ENH: Add g:SearchRepeat_IsAlwaysForwardWith_n
 "				configuration to consistently always move
 "				forward / backward with n / N, regardless of
@@ -90,8 +99,11 @@ let g:loaded_SearchRepeat = 1
 
 "- configuration ---------------------------------------------------------------
 
-if ! exists('g:SearchRepeat_MappingPrefix')
-    let g:SearchRepeat_MappingPrefix = 'gn'
+if ! exists('g:SearchRepeat_MappingPrefixNext')
+    let g:SearchRepeat_MappingPrefixNext = 'gn'
+endif
+if ! exists('g:SearchRepeat_MappingPrefixPrev')
+    let g:SearchRepeat_MappingPrefixPrev = 'gN'
 endif
 if ! exists('g:SearchRepeat_IsAlwaysForwardWith_n')
     let g:SearchRepeat_IsAlwaysForwardWith_n = 0
@@ -161,7 +173,7 @@ xnoremap <silent> <script>  *  <SID>(SearchRepeat_Star)<SID>(SetRepeat)
 
 nnoremap <silent> <Plug>(SearchRepeatHelp) :<C-U>call SearchRepeat#Help()<CR>
 if ! hasmapto('<Plug>(SearchRepeatHelp)', 'n')
-    execute printf('nmap %s <Plug>(SearchRepeatHelp)', g:SearchRepeat_MappingPrefix)
+    execute printf('nmap %s <Plug>(SearchRepeatHelp)', g:SearchRepeat_MappingPrefixNext)
 endif
 
 " vim: set ts=8 sts=4 sw=4 noexpandtab ff=unix fdm=syntax :

@@ -121,6 +121,14 @@ move backward. This can be achieved for both built-in and custom searches by
 setting: >
     let g:SearchRepeat_IsAlwaysForwardWith_n = 1
 Note: This requires Vim 7.2 or later.
+				      *g:SearchRepeat_IsResetToStandardSearch*
+Whenever the current search pattern (|quote/|) changes, searches with n/N are
+reset to the standard search; it is assumed that a custom search was bound to
+a particular search pattern, and once the pattern changes the scope of the
+custom search has ended. To disable that, use: >
+    let g:SearchRepeat_IsResetToStandardSearch = 0
+After that, you have to explicitly switch back to standard search with |gn/| /
+|gn?| (provided by |SearchStandardSearch.vim|).
 							  *SearchRepeat-remap*
 	 *g:SearchRepeat_MappingPrefixNext* *g:SearchRepeat_MappingPrefixPrev*
 To change the default mapping prefixes for forward / backward search, use: >
@@ -196,6 +204,10 @@ HISTORY							*SearchRepeat-history*
 - CHG: Mapping registration only stores the "Next" mapping, and the gn help
   command only lists those (to reduce clutter and duplication). The "Prev"
   mapping is now stored in s:reverseRegistrations.
+- Remember the contents of @/ and reset to standard search when it changed
+  (e.g. by * / g*, or plugins like my SearchAlternatives.vim).
+- Make this configurable via g:SearchRepeat_IsResetToStandardSearch and enable
+  toggling via new <Leader>tgn mapping.
 
 1.11	29-Apr-2016
 - FIX: v:searchforward requires Vim 7.2; don't support the
@@ -217,7 +229,7 @@ First published version.
 Started development.
 
 ==============================================================================
-Copyright: (C) 2008-2016 Ingo Karkat
+Copyright: (C) 2008-2017 Ingo Karkat
 The VIM LICENSE applies to this plugin; see |copyright|.
 
 Maintainer:	Ingo Karkat <ingo@karkat.de>

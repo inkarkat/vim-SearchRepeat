@@ -17,6 +17,9 @@
 "				s:lastSearchPattern and reset to standard search
 "				when it changed (e.g. by * / g*, or plugins like
 "				my SearchAlternatives.vim).
+"				Reset to standard search is now configurable via
+"				g:SearchRepeat_IsResetToStandardSearch.
+"				Add SearchRepeat#ToggleResetToStandard().
 "   2.00.016	29-Apr-2016	CHG: Simplify SearchRepeat#Define() API: Get rid
 "				of duplicate suffixes, descriptions, helptexts,
 "				related commands for next / prev mappings.
@@ -151,7 +154,9 @@ let s:lastSearchDescription = ''
 let s:lastSearchPattern = ''
 
 function! SearchRepeat#ResetToStandardSearch()
-    call SearchRepeat#Set("\<Plug>(SearchRepeat_n)", "\<Plug>(SearchRepeat_N)", 2)
+    if g:SearchRepeat_IsResetToStandardSearch
+	call SearchRepeat#Set("\<Plug>(SearchRepeat_n)", "\<Plug>(SearchRepeat_N)", 2)
+    endif
 endfunction
 function! SearchRepeat#Set( mapping, oppositeMapping, howToHandleCount, ... )
     let s:lastSearch = [a:mapping, a:oppositeMapping, a:howToHandleCount, (a:0 ? a:1 : {})]
@@ -292,6 +297,15 @@ function! SearchRepeat#Help()
 	\   (empty(l:info[4]) ? '' : s:FixedTabWidth(48, l:info[3], l:info[4]))
 	echohl None
     endfor
+endfunction
+
+
+function! SearchRepeat#ToggleResetToStandard()
+    let g:SearchRepeat_IsResetToStandardSearch = ! g:SearchRepeat_IsResetToStandardSearch
+    echomsg (g:SearchRepeat_IsResetToStandardSearch ?
+    \   'Changes in search pattern will reset to default search' :
+    \   'Current custom search will persist when search pattern changes'
+    \)
 endfunction
 
 let &cpo = s:save_cpo

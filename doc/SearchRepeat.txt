@@ -40,6 +40,44 @@ SEE ALSO								     *
   for special search modes. Check out its plugin page for a full list of
   custom searches powered by it.
 
+The following custom integrate with this plugin:
+
+- |SearchAsQuickJump.vim| (vimscript #5619):
+  Quick search without affecting 'hlsearch', search pattern and history.
+- |SearchAtFixedWindowPosition.vim| (vimscript #0000):
+  Search and position the search result at the top / center / bottom of the window.
+- |SearchFoldsWithoutOpening.vim| (vimscript #0000):
+  Show search results in closed folds without opening them.
+- |SearchForExpr.vim| (vimscript #0000):
+  Search where pattern matches and a passed expression evaluates to true.
+- |SearchInLocation.vim| (vimscript #0000):
+  Search for next match in the same column.
+- |SearchInRange.vim| (vimscript #4997):
+  Limit search to range when jumping to the next search result.
+- |SearchInSyntax.vim| (vimscript #0000):
+  Skip matches in a particular syntax item when jumping to the next search
+  result.
+- |SearchInView.vim| (vimscript #0000):
+  Search for next match inside / outside the currently visible view.
+- |SearchLineOnce.vim| (vimscript #0000):
+  Skip multiple matches in a line when jumping to the next search result.
+- |SearchManyLocations.vim| (vimscript #0000):
+  Searches that span multiple windows, buffers, arguments.
+- |SearchMarks.vim| (vimscript #0000):
+  Go to any or same marks set by mark.vim.
+- |SearchPatternExpression.vim| (vimscript #0000):
+  Dynamically adapt the search pattern on each jump (and events).
+- |SearchStandardSearch.vim| (vimscript #0000):
+  Re-activate the normal, built-in search in SearchRepeat.
+- |SearchWithInv.vim| (vimscript #0000):
+  Search for next match with inverted wrapscan / ignorecase settings.
+- |SearchWithoutClosedFolds.vim| (vimscript #0000):
+  Skip closed folds when jumping to the next search result.
+- |SearchWithoutFoldedBeyondLines.vim| (vimscript #0000):
+  Skip folded lines except the first when jumping to the next search result.
+- |SearchWithoutHighlighting.vim| (vimscript #0000):
+  Search without turning on 'hlsearch' highlighting.
+
 RELATED WORKS								     *
 
 - If you just want to change the n/N direction behavior, you can use the

@@ -11,6 +11,10 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
+"   2.00.019	28-Nov-2017	ENH: Support "isResetToStandardSearch" option
+"				flag that overrides the
+"				g:SearchRepeat_IsResetToStandardSearch
+"				configuration value for certain integrations.
 "   2.00.018	27-Nov-2017	ENH: Omit related commands and condense
 "				activation commands column in search type list
 "				when in small-width Vim, to avoid line breaks
@@ -157,8 +161,8 @@ let s:lastSearch = ["\<Plug>(SearchRepeat_n)", "\<Plug>(SearchRepeat_N)", 2, {}]
 let s:lastSearchDescription = ''
 let s:lastSearchPattern = ''
 
-function! SearchRepeat#ResetToStandardSearch()
-    if g:SearchRepeat_IsResetToStandardSearch
+function! SearchRepeat#ResetToStandardSearch( ... )
+    if get((a:0 ? a:1 : {}), 'isResetToStandardSearch', g:SearchRepeat_IsResetToStandardSearch)
 	call SearchRepeat#Set("\<Plug>(SearchRepeat_n)", "\<Plug>(SearchRepeat_N)", 2)
     endif
 endfunction
@@ -186,7 +190,7 @@ function! SearchRepeat#Execute( isOpposite, mapping, oppositeMapping, howToHandl
 endfunction
 function! SearchRepeat#Repeat( isOpposite )
     if @/ !=# s:lastSearchPattern
-	call SearchRepeat#ResetToStandardSearch()
+	call SearchRepeat#ResetToStandardSearch(s:lastSearch[3])
     endif
 
     let l:searchCommand = s:lastSearch[ a:isOpposite ]

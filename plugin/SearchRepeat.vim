@@ -14,6 +14,8 @@
 "				SearchRepeat#ResetToStandardSearch().
 "				Reset to standard search is now configurable via
 "				g:SearchRepeat_IsResetToStandardSearch.
+"				Add <Leader>tgn mapping to toggle
+"				g:SearchRepeat_IsResetToStandardSearch.
 "   2.00.023	29-Apr-2016	CHG: Split g:SearchRepeat_MappingPrefix into two
 "				g:SearchRepeat_MappingPrefixNext and
 "				g:SearchRepeat_MappingPrefixPrev. With this,
@@ -178,6 +180,14 @@ nnoremap <silent> <script>  *  <SID>(SearchRepeat_Star)<SID>(SetRepeat)
 nnoremap <silent> <script> g* <SID>(SearchRepeat_GStar)<SID>(SetRepeat)
 xnoremap <silent> <script>  *  <SID>(SearchRepeat_Star)<SID>(SetRepeat)
 
+
+
+" Auxiliary mappings.
+
+nnoremap <silent> <Plug>(SearchRepeatToggleResetToStandard) :<C-u>call SearchRepeat#ToggleResetToStandard()<CR>
+if ! hasmapto('<Plug>(SearchRepeatToggleResetToStandard)', 'n')
+    nmap <Leader>tgn <Plug>(SearchRepeatToggleResetToStandard)
+endif
 
 nnoremap <silent> <Plug>(SearchRepeatHelp) :<C-U>call SearchRepeat#Help()<CR>
 if ! hasmapto('<Plug>(SearchRepeatHelp)', 'n')

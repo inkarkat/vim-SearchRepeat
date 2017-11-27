@@ -246,6 +246,9 @@ HISTORY							*SearchRepeat-history*
   (e.g. by * / g*, or plugins like my SearchAlternatives.vim).
 - Make this configurable via g:SearchRepeat_IsResetToStandardSearch and enable
   toggling via new <Leader>tgn mapping.
+- ENH: Omit related commands and condense activation commands column in search
+  type list when in small-width Vim, to avoid line breaks that make the layout
+  hard to read.
 
 1.11	29-Apr-2016
 - FIX: v:searchforward requires Vim 7.2; don't support the

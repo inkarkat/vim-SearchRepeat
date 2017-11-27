@@ -40,7 +40,7 @@ SEE ALSO								     *
   for special search modes. Check out its plugin page for a full list of
   custom searches powered by it.
 
-The following custom integrate with this plugin:
+The following custom searches integrate with this plugin:
 
 - |SearchAsQuickJump.vim| (vimscript #5619):
   Quick search without affecting 'hlsearch', search pattern and history.
@@ -50,6 +50,8 @@ The following custom integrate with this plugin:
   Show search results in closed folds without opening them.
 - |SearchForExpr.vim| (vimscript #0000):
   Search where pattern matches and a passed expression evaluates to true.
+- |SearchFrozenPattern.vim| (vimscript #0000):
+  Freeze the current search pattern and keep searching for it.
 - |SearchInLocation.vim| (vimscript #0000):
   Search for next match in the same column.
 - |SearchInRange.vim| (vimscript #4997):
@@ -197,6 +199,7 @@ that is passed to the 'n' / 'N' commands:
     1: Doesn't handle count itself, invoke search mapping multiple times.
     2: Handles count itself, prepend count before search mapping.
 
+							*SearchRepeat-options*
 An optional fourth argument supplies additional configuration in a dictionary;
 these key names are supported:
 - "hlsearch" (type Boolean, default 1)
@@ -207,6 +210,11 @@ these key names are supported:
 - "keys"    (type String, default "")
    Appends arbitrary (mapped) key sequences (via |feedkeys()|) after executing
    the search mapping.
+- "isResetToStandardSearch" (type Boolean, default
+  |g:SearchRepeat_IsResetToStandardSearch| value)
+  Flag whether to reset to standard search whenever the current search pattern
+  changes. Overrides the global configuration, making the custom search immune
+  to its current value.
 
 But normally, you'd define the (optional) SearchRepeat integration via the
 single SearchRepeat#Define() convenience function, at the end of your custom
@@ -249,6 +257,9 @@ HISTORY							*SearchRepeat-history*
 - ENH: Omit related commands and condense activation commands column in search
   type list when in small-width Vim, to avoid line breaks that make the layout
   hard to read.
+- ENH: Support "isResetToStandardSearch" option flag that overrides the
+  g:SearchRepeat_IsResetToStandardSearch configuration value for certain
+  integrations.
 
 1.11	29-Apr-2016
 - FIX: v:searchforward requires Vim 7.2; don't support the

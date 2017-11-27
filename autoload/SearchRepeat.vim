@@ -11,6 +11,10 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
+"   2.00.018	27-Nov-2017	ENH: Omit related commands and condense
+"				activation commands column in search type list
+"				when in small-width Vim, to avoid line breaks
+"				that make the layout hard to read.
 "   2.00.017	22-Nov-2017	Refactoring: Extract
 "				SearchRepeat#ResetToStandardSearch().
 "				Remember the contents of @/ in
@@ -280,8 +284,11 @@ function! s:FixedTabWidth( precedingTextWidth, precedingText, text )
     return repeat("\t", (a:precedingTextWidth - len(a:precedingText) - 1) / 8 + 1) . a:text
 endfunction
 function! SearchRepeat#Help()
+    let l:isShort = (&columns <= 80)
+    let [l:spacer, l:width, l:optional] = (l:isShort ? ["\t", 8, ''] : ["\t\t", 16, "\t\t\t\t\trelated commands"])
+
     echohl Title
-    echo "activation\tdescription\thelptext\t\t\t\t\trelated commands"
+    echo "activation" . l:spacer . "description\thelptext" . l:optional
     echohl None
 
     for [l:mapping, l:info] in sort(items(s:registrations), 's:SortByReactivation')
@@ -292,9 +299,10 @@ function! SearchRepeat#Help()
 	let l:mappingToReactivate = (empty(l:info[1]) ? '' : g:SearchRepeat_MappingPrefixNext . l:info[1])
 
 	echo ingo#escape#command#mapunescape(l:mappingToReactivate) . "\t" .
-	\   l:info[0] . "\t" .
-	\   l:info[2]. s:FixedTabWidth(16, l:info[2], l:info[3]) .
-	\   (empty(l:info[4]) ? '' : s:FixedTabWidth(48, l:info[3], l:info[4]))
+	\   l:info[0] .
+	\   s:FixedTabWidth(l:width, l:info[0], l:info[2]) .
+	\   s:FixedTabWidth(16, l:info[2], l:info[3]) .
+	\   (empty(l:info[4]) || empty(l:optional) ? '' : s:FixedTabWidth(48, l:info[3], l:info[4]))
 	echohl None
     endfor
 endfunction

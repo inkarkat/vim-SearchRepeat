@@ -15,6 +15,8 @@
 "				flag that overrides the
 "				g:SearchRepeat_IsResetToStandardSearch
 "				configuration value for certain integrations.
+"				Refactoring: Move s:SearchCommand() to
+"				SearchRepeat#StandardCommand().
 "   2.00.018	27-Nov-2017	ENH: Omit related commands and condense
 "				activation commands column in search type list
 "				when in small-width Vim, to avoid line breaks
@@ -160,6 +162,16 @@ endfunction
 let s:lastSearch = ["\<Plug>(SearchRepeat_n)", "\<Plug>(SearchRepeat_N)", 2, {}]
 let s:lastSearchDescription = ''
 let s:lastSearchPattern = ''
+
+function! SearchRepeat#StandardCommand( keys )
+    " Store the [count] of the last search command. Other plugins that enhance
+    " the standard search (SearchAsQuickJumpNext) are interested in it.
+    let g:lastSearchCount = v:count
+
+    call SearchRepeat#ResetToStandardSearch(s:lastSearch[3])
+
+    return a:keys
+endfunction
 
 function! SearchRepeat#ResetToStandardSearch( ... )
     if get((a:0 ? a:1 : {}), 'isResetToStandardSearch', g:SearchRepeat_IsResetToStandardSearch)

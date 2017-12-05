@@ -179,6 +179,32 @@ function! SearchRepeat#ResetToStandardSearch( ... )
     endif
 endfunction
 function! SearchRepeat#Set( mapping, oppositeMapping, howToHandleCount, ... )
+"******************************************************************************
+"* PURPOSE:
+"   Set a particular search type for repeating with n / N.
+"* ASSUMPTIONS / PRECONDITIONS:
+"   None.
+"* EFFECTS / POSTCONDITIONS:
+"   Changes the active custom search used by n / N.
+"* INPUTS:
+"   a:mapping   Mapping to (forward) search for the next match.
+"   a:oppositeMapping   Mapping to (backward) search for the previous match.
+"   a:howToHandleCount  Tells the repeater how the search command handles a
+"			[count] before n / N:
+"	0: Doesn't handle count, single invocation only.
+"	1: Doesn't handle count itself, invoke search command multiple times.
+"	2: Handles count itself, pass it through.
+"   a:options           Optional configuration:
+"   a:options.hlsearch  Flag whether to re-enable 'hlsearch' during repetition
+"			(default 1).
+"   a:options.keys      Appends arbitrary (mapped) key sequences (via
+"			feedkeys()) after executing the search mapping.
+"   a:options.isResetToStandardSearch   Flag that overrides
+"					g:SearchRepeat_IsResetToStandardSearch
+"					for this custom search.
+"* RETURN VALUES:
+"   None.
+"******************************************************************************
     let s:lastSearch = [a:mapping, a:oppositeMapping, a:howToHandleCount, (a:0 ? a:1 : {})]
     let s:lastSearchPattern = @/
     if has_key(s:registrations, a:mapping)
@@ -277,6 +303,26 @@ function! SearchRepeat#Register( mappingNext, mappingPrev, mappingToActivate, su
 endfunction
 
 function! SearchRepeat#Define( mappingNext, mappingPrev, mappingToActivate, suffixToReactivate, description, helptext, relatedCommands, howToHandleCountAndOptions )
+"******************************************************************************
+"* PURPOSE:
+"   Define a repeatable custom search.
+"* ASSUMPTIONS / PRECONDITIONS:
+"	? List of any external variable, control, or other element whose state affects this procedure.
+"* EFFECTS / POSTCONDITIONS:
+"	? List of the procedure's effect on each external variable, control, or other element.
+"* INPUTS:
+"   a:mappingNext   Mapping to (forward) search for the next match.
+"   a:mappingPrev   Mapping to (backward) search for the previous match.
+"   a:mappingToActivate Any mapping(s) (or none) provided by the custom search
+"			plugin that activate the search.
+"   a:suffixToReactivate    Keys after "gn" that reactivate the custom search.
+"   a:description   Short textual representation of the custom search type.
+"   a:helptext      A short sentence that describes the custom search.
+"   a:relatedCommands   Any (Ex) commands that activate or configure the custom
+"			search. Like a:mappingToActivate, but for longer stuff.
+"* RETURN VALUES:
+"	? Explanation of the value returned.
+"******************************************************************************
     execute printf('call SearchRepeat#Register("\%s", "\%s", a:mappingToActivate, a:suffixToReactivate, a:description, a:helptext, a:relatedCommands)', a:mappingNext, a:mappingPrev)
     execute printf('nnoremap <silent> %s%s :<C-u>if ! SearchRepeat#Execute(0, "\%s", "\%s", %s)<Bar>echoerr ingo#err#Get()<Bar>endif<CR>', g:SearchRepeat_MappingPrefixNext, a:suffixToReactivate, a:mappingNext, a:mappingPrev, a:howToHandleCountAndOptions)
     execute printf('nnoremap <silent> %s%s :<C-u>if ! SearchRepeat#Execute(1, "\%s", "\%s", %s)<Bar>echoerr ingo#err#Get()<Bar>endif<CR>', g:SearchRepeat_MappingPrefixPrev, a:suffixToReactivate, a:mappingNext, a:mappingPrev, a:howToHandleCountAndOptions)

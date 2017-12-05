@@ -200,7 +200,7 @@ To set the current search type (in a custom search mapping) and execute the
     endif
 <
 The third argument n specifies how the mappings deal with an optional [count]
-that is passed to the 'n' / 'N' commands:
+that is passed to the |n| / |N| commands:
     0: Doesn't handle count, single invocation only. No count is prepended to
        the search mapping, which is invoked only once. (But the count itself
        is still available through v:count.)

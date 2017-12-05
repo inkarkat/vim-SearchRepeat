@@ -11,6 +11,8 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
+"   2.00.020	05-Dec-2017	Rename arguments: description -> identifier and
+"				helptext -> description.
 "   2.00.019	28-Nov-2017	ENH: Support "isResetToStandardSearch" option
 "				flag that overrides the
 "				g:SearchRepeat_IsResetToStandardSearch
@@ -160,7 +162,7 @@ endfunction
 
 
 let s:lastSearch = ["\<Plug>(SearchRepeat_n)", "\<Plug>(SearchRepeat_N)", 2, {}]
-let s:lastSearchDescription = ''
+let s:lastSearchIdentifier = ''
 let s:lastSearchPattern = ''
 
 function! SearchRepeat#StandardCommand( keys )
@@ -208,11 +210,11 @@ function! SearchRepeat#Set( mapping, oppositeMapping, howToHandleCount, ... )
     let s:lastSearch = [a:mapping, a:oppositeMapping, a:howToHandleCount, (a:0 ? a:1 : {})]
     let s:lastSearchPattern = @/
     if has_key(s:registrations, a:mapping)
-	let s:lastSearchDescription = s:registrations[a:mapping][2]
+	let s:lastSearchIdentifier = s:registrations[a:mapping][2]
     elseif has_key(s:reverseRegistrations, a:mapping) && has_key(s:registrations, s:reverseRegistrations[a:mapping])
-	let s:lastSearchDescription = s:registrations[s:reverseRegistrations[a:mapping]][2]
+	let s:lastSearchIdentifier = s:registrations[s:reverseRegistrations[a:mapping]][2]
     else
-	let s:lastSearchDescription = '???'
+	let s:lastSearchIdentifier = '???'
 	if &verbose > 0
 	    call ingo#msg#WarningMsg(printf('SearchRepeat: No registration found for %s', a:mapping))
 	endif
@@ -283,7 +285,7 @@ endfunction
 "- integration point for search type ------------------------------------------
 
 function! SearchRepeat#LastSearchDescription()
-    return s:lastSearchDescription
+    return s:lastSearchIdentifier
 endfunction
 
 
@@ -291,18 +293,18 @@ endfunction
 
 let s:registrations = {"\<Plug>(SearchRepeat_n)": ['/', '', 'Standard search', '', '']}
 let s:reverseRegistrations = {"\<Plug>(SearchRepeat_N)": "\<Plug>(SearchRepeat_n)"}
-function! SearchRepeat#Register( mappingNext, mappingPrev, mappingToActivate, suffixToReactivate, description, helptext, relatedCommands )
+function! SearchRepeat#Register( mappingNext, mappingPrev, mappingToActivate, suffixToReactivate, identifier, description, relatedCommands )
     let s:registrations[ a:mappingNext ] = [
     \   a:mappingToActivate,
     \   a:suffixToReactivate,
+    \   a:identifier,
     \   a:description,
-    \   a:helptext,
     \   a:relatedCommands
     \]
     let s:reverseRegistrations[ a:mappingPrev ] = a:mappingNext
 endfunction
 
-function! SearchRepeat#Define( mappingNext, mappingPrev, mappingToActivate, suffixToReactivate, description, helptext, relatedCommands, howToHandleCountAndOptions )
+function! SearchRepeat#Define( mappingNext, mappingPrev, mappingToActivate, suffixToReactivate, identifier, description, relatedCommands, howToHandleCountAndOptions )
 "******************************************************************************
 "* PURPOSE:
 "   Define a repeatable custom search.
@@ -316,14 +318,14 @@ function! SearchRepeat#Define( mappingNext, mappingPrev, mappingToActivate, suff
 "   a:mappingToActivate Any mapping(s) (or none) provided by the custom search
 "			plugin that activate the search.
 "   a:suffixToReactivate    Keys after "gn" that reactivate the custom search.
-"   a:description   Short textual representation of the custom search type.
-"   a:helptext      A short sentence that describes the custom search.
+"   a:identifier        Short textual representation of the custom search type.
+"   a:description       A short sentence that describes the custom search.
 "   a:relatedCommands   Any (Ex) commands that activate or configure the custom
 "			search. Like a:mappingToActivate, but for longer stuff.
 "* RETURN VALUES:
 "	? Explanation of the value returned.
 "******************************************************************************
-    execute printf('call SearchRepeat#Register("\%s", "\%s", a:mappingToActivate, a:suffixToReactivate, a:description, a:helptext, a:relatedCommands)', a:mappingNext, a:mappingPrev)
+    execute printf('call SearchRepeat#Register("\%s", "\%s", a:mappingToActivate, a:suffixToReactivate, a:identifier, a:description, a:relatedCommands)', a:mappingNext, a:mappingPrev)
     execute printf('nnoremap <silent> %s%s :<C-u>if ! SearchRepeat#Execute(0, "\%s", "\%s", %s)<Bar>echoerr ingo#err#Get()<Bar>endif<CR>', g:SearchRepeat_MappingPrefixNext, a:suffixToReactivate, a:mappingNext, a:mappingPrev, a:howToHandleCountAndOptions)
     execute printf('nnoremap <silent> %s%s :<C-u>if ! SearchRepeat#Execute(1, "\%s", "\%s", %s)<Bar>echoerr ingo#err#Get()<Bar>endif<CR>', g:SearchRepeat_MappingPrefixPrev, a:suffixToReactivate, a:mappingNext, a:mappingPrev, a:howToHandleCountAndOptions)
 endfunction
@@ -350,7 +352,7 @@ function! SearchRepeat#Help()
     let [l:spacer, l:width, l:optional] = (l:isShort ? ["\t", 8, ''] : ["\t\t", 16, "\t\t\t\t\trelated commands"])
 
     echohl Title
-    echo "activation" . l:spacer . "description\thelptext" . l:optional
+    echo "activation" . l:spacer . "identifier\tdescription" . l:optional
     echohl None
 
     for [l:mapping, l:info] in sort(items(s:registrations), 's:SortByReactivation')

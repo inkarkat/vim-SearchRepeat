@@ -123,7 +123,7 @@ Then, integrate these into SearchRepeat, using gnzz and gnzZ to activate them: >
 <
 The |gn| command will now show the newly added custom search in addition to
 the built-in standard search:
-activation	description	helptext ~
+activation	identifier	description ~
 	/	Standard search ~
 gnzz		win-center	Search, position at center of window ~
 
@@ -273,6 +273,8 @@ HISTORY							*SearchRepeat-history*
 - ENH: Support "isResetToStandardSearch" option flag that overrides the
   g:SearchRepeat_IsResetToStandardSearch configuration value for certain
   integrations.
+- Rename "description" to "identifier" and "helptext" to "description" in gn
+  help and function arguments.
 
 1.11	29-Apr-2016
 - FIX: v:searchforward requires Vim 7.2; don't support the

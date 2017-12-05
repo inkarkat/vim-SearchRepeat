@@ -83,7 +83,7 @@ Then, integrate these into SearchRepeat, using gnzz and gnzZ to activate them:
 The gn command will now show the newly added custom search in addition to
 the built-in standard search:
 ```
-activation      description     helptext
+activation      identifier      description
         /       Standard search
 gnzz            win-center      Search, position at center of window
 ```
@@ -170,7 +170,7 @@ To set the current search type (in a custom search mapping) and execute the
     endif
 
 The third argument n specifies how the mappings deal with an optional [count]
-that is passed to the 'n' / 'N' commands:
+that is passed to the n / N commands:
     0: Doesn't handle count, single invocation only. No count is prepended to
        the search mapping, which is invoked only once. (But the count itself
        is still available through v:count.)
@@ -235,6 +235,8 @@ HISTORY
 - ENH: Support "isResetToStandardSearch" option flag that overrides the
   g:SearchRepeat\_IsResetToStandardSearch configuration value for certain
   integrations.
+- Rename "description" to "identifier" and "helptext" to "description" in gn
+  help and function arguments.
 
 ##### 1.11    29-Apr-2016
 - FIX: v:searchforward requires Vim 7.2; don't support the

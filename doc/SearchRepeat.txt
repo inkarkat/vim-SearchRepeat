@@ -69,6 +69,8 @@ The following custom searches integrate with this plugin:
   Searches that span multiple windows, buffers, arguments.
 - |SearchMarks.vim| (vimscript #0000):
   Go to any or same marks set by mark.vim.
+- |SearchOffset.vim| (vimscript #0000):
+  Apply another search or motion after jumping to matches.
 - |SearchPatternExpression.vim| (vimscript #0000):
   Dynamically adapt the search pattern on each jump (and events).
 - |SearchStandardSearch.vim| (vimscript #0000):

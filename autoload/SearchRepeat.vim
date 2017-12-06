@@ -11,6 +11,14 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
+"   2.00.021	06-Dec-2017	Refactoring: Factor out
+"				SearchRepeat#UpdateLastSearchPattern(); clients
+"				that automatically update the search pattern
+"				(like my SearchPatternExpression.vim plugin) can
+"				use this to inform SearchRepeat that this was an
+"				"automatic" change, not one initiated by the
+"				user, so the revert to standard search should
+"				not happen.
 "   2.00.020	05-Dec-2017	Rename arguments: description -> identifier and
 "				helptext -> description.
 "   2.00.019	28-Nov-2017	ENH: Support "isResetToStandardSearch" option
@@ -165,6 +173,10 @@ let s:lastSearch = ["\<Plug>(SearchRepeat_n)", "\<Plug>(SearchRepeat_N)", 2, {}]
 let s:lastSearchIdentifier = ''
 let s:lastSearchPattern = ''
 
+function! SearchRepeat#UpdateLastSearchPattern()
+    let s:lastSearchPattern = @/
+endfunction
+
 function! SearchRepeat#StandardCommand( keys )
     " Store the [count] of the last search command. Other plugins that enhance
     " the standard search (SearchAsQuickJumpNext) are interested in it.
@@ -214,7 +226,7 @@ function! SearchRepeat#Set( mapping, oppositeMapping, howToHandleCount, ... )
 "   None.
 "******************************************************************************
     let s:lastSearch = [a:mapping, a:oppositeMapping, a:howToHandleCount, (a:0 ? a:1 : {})]
-    let s:lastSearchPattern = @/
+    call SearchRepeat#UpdateLastSearchPattern()
     if has_key(s:registrations, a:mapping)
 	let s:lastSearchIdentifier = s:registrations[a:mapping][2]
     elseif has_key(s:reverseRegistrations, a:mapping) && has_key(s:registrations, s:reverseRegistrations[a:mapping])

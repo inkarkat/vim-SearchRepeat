@@ -198,12 +198,18 @@ function! SearchRepeat#Set( mapping, oppositeMapping, howToHandleCount, ... )
 "	2: Handles count itself, pass it through.
 "   a:options           Optional configuration:
 "   a:options.hlsearch  Flag whether to re-enable 'hlsearch' during repetition
-"			(default 1).
+"			(default 1) (which is not done automatically because the
+"			repeated mapping is executed from within a function, and
+"			not via feedkeys()). Set to 0 if your search mapping has
+"			nothing to do with the built-in search functionality.
 "   a:options.keys      Appends arbitrary (mapped) key sequences (via
 "			feedkeys()) after executing the search mapping.
-"   a:options.isResetToStandardSearch   Flag that overrides
+"   a:options.isResetToStandardSearch   Flag whether to reset to standard search
+"					whenever the current search pattern
+"					changes. Overrides the global
 "					g:SearchRepeat_IsResetToStandardSearch
-"					for this custom search.
+"					configuration, making the custom search
+"					immune to its current value.
 "* RETURN VALUES:
 "   None.
 "******************************************************************************
@@ -322,6 +328,10 @@ function! SearchRepeat#Define( mappingNext, mappingPrev, mappingToActivate, suff
 "   a:description       A short sentence that describes the custom search.
 "   a:relatedCommands   Any (Ex) commands that activate or configure the custom
 "			search. Like a:mappingToActivate, but for longer stuff.
+"   a:howToHandleCountAndOptions    See SearchRepeat#Set(); at least specify
+"				    a:howToHandleCount. If you also want to
+"				    specify a:options, you need to pass both as
+"				    a single string; e.g. "2, {'hlsearch': 0}".
 "* RETURN VALUES:
 "	? Explanation of the value returned.
 "******************************************************************************

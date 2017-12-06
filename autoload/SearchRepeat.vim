@@ -20,11 +20,9 @@
 "				user, so the revert to standard search should
 "				not happen.
 "				Refactoring: Factor out
-"				s:ConsiderChangeInLastSearchPattern(). Rename
-"				SearchRepeat#UpdateLastSearchPattern() to
-"				s:UpdateLastSearchPattern() and introduce new
-"				SearchRepeat#OnUpdateOfLastSearchPattern() that
-"				both considers a change and then updates
+"				s:ConsiderChangeInLastSearchPattern(). Introduce
+"				new SearchRepeat#OnUpdateOfLastSearchPattern()
+"				that both considers a change and then updates
 "				s:lastSearchPattern. This function is now
 "				invoked by the User LastSearchPatternChanged
 "				event.
@@ -187,12 +185,12 @@ function! s:ConsiderChangeInLastSearchPattern()
 	call SearchRepeat#ResetToStandardSearch(s:lastSearch[3])
     endif
 endfunction
-function! s:UpdateLastSearchPattern()
+function! SearchRepeat#UpdateLastSearchPattern()
     let s:lastSearchPattern = @/
 endfunction
 function! SearchRepeat#OnUpdateOfLastSearchPattern()
     call s:ConsiderChangeInLastSearchPattern()
-    call s:UpdateLastSearchPattern()
+    call SearchRepeat#UpdateLastSearchPattern()
 endfunction
 
 function! SearchRepeat#StandardCommand( keys )
@@ -244,7 +242,7 @@ function! SearchRepeat#Set( mapping, oppositeMapping, howToHandleCount, ... )
 "   None.
 "******************************************************************************
     let s:lastSearch = [a:mapping, a:oppositeMapping, a:howToHandleCount, (a:0 ? a:1 : {})]
-    call s:UpdateLastSearchPattern()
+    call SearchRepeat#UpdateLastSearchPattern()
     if has_key(s:registrations, a:mapping)
 	let s:lastSearchIdentifier = s:registrations[a:mapping][2]
     elseif has_key(s:reverseRegistrations, a:mapping) && has_key(s:registrations, s:reverseRegistrations[a:mapping])

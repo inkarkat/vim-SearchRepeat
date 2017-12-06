@@ -10,6 +10,11 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
+"   2.00.026	06-Dec-2017	ENH: Listen to User LastSearchPatternChanged
+"				event; other plugins and customizations can emit
+"				that to notify this plugin of changes to @/.
+"				This is more general than invoking
+"				SearchRepeat#UpdateLastSearchPattern().
 "   2.00.025	28-Nov-2017	Refactoring: Move s:SearchCommand() to
 "				SearchRepeat#StandardCommand().
 "   2.00.024	22-Nov-2017	Refactoring: Extract
@@ -186,5 +191,12 @@ nnoremap <silent> <Plug>(SearchRepeatHelp) :<C-U>call SearchRepeat#Help()<CR>
 if ! hasmapto('<Plug>(SearchRepeatHelp)', 'n')
     execute printf('nmap %s <Plug>(SearchRepeatHelp)', g:SearchRepeat_MappingPrefixNext)
 endif
+
+
+"- autocmds --------------------------------------------------------------------
+
+augroup SearchRepeat
+    autocmd! User LastSearchPatternChanged call SearchRepeat#OnUpdateOfLastSearchPattern()
+augroup END
 
 " vim: set ts=8 sts=4 sw=4 noexpandtab ff=unix fdm=syntax :

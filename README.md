@@ -160,16 +160,16 @@ INTEGRATION
 
 To set the current search type (in a custom search mapping):
 
-    :call SearchRepeat#Set("\<Plug>MyCustomSearchMapping", "\<Plug>MyCustomOppositeSearchMapping", n)
+    :call SearchRepeat#Set("\<Plug>MyCustomSearchMapping", "\<Plug>MyCustomOppositeSearchMapping", 2)
 
 To set the current search type (in a custom search mapping) and execute the
 (first with 0, opposite with 1 as first argument) search mapping:
 
-    if ! SearchRepeat#Execute(0, "\<Plug>MyCustomSearchMapping", "\<Plug>MyCustomOppositeSearchMapping", n)
+    if ! SearchRepeat#Execute(0, "\<Plug>MyCustomSearchMapping", "\<Plug>MyCustomOppositeSearchMapping", 2)
         echoerr ingo#err#Get()
     endif
 
-The third argument n specifies how the mappings deal with an optional [count]
+The third argument specifies how the mappings deal with an optional [count]
 that is passed to the n / N commands:
     0: Doesn't handle count, single invocation only. No count is prepended to
        the search mapping, which is invoked only once. (But the count itself
@@ -178,20 +178,7 @@ that is passed to the n / N commands:
     2: Handles count itself, prepend count before search mapping.
 
 An optional fourth argument supplies additional configuration in a dictionary;
-these key names are supported:
-- "hlsearch" (type Boolean, default 1)
-   Flag whether to re-enable 'hlsearch' during repetition (which is not done
-   automatically because the repeated mapping is executed from within a
-   function, and not via feedkeys()). Set to 0 if your search mapping has
-   nothing to do with the built-in search functionality.
-- "keys"    (type String, default "")
-   Appends arbitrary (mapped) key sequences (via feedkeys()) after executing
-   the search mapping.
-- "isResetToStandardSearch" (type Boolean, default
-  g:SearchRepeat\_IsResetToStandardSearch value)
-  Flag whether to reset to standard search whenever the current search pattern
-  changes. Overrides the global configuration, making the custom search immune
-  to its current value.
+see the SearchRepeat#Set() function for details.
 
 But normally, you'd define the (optional) SearchRepeat integration via the
 single SearchRepeat#Define() convenience function, at the end of your custom
@@ -201,6 +188,21 @@ search plugin:
         call SearchRepeat#Define(...)
     catch /^Vim\%((\a\+)\)\=:E117/      " catch error E117: Unknown function
     endtry
+
+Look up the function definition for details on the arguments.
+
+The repeated search type may be affected by changes to the last search pattern
+(quote/; via g:SearchRepeat\_IsResetToStandardSearch). Other plugins or
+customizations that change register / may notify SearchRepeat about this by
+firing a User event:
+
+    let @/ = "new pattern"
+    silent doautocmd User LastSearchPatternChanged
+
+This is purely optional; the effects of that are only noticeable if the
+current search type is indicated in the 'titlestring' or 'statusline', for
+example. Even without the event, SearchRepeat will recognize and evaluate the
+patter change on the next navigation with n / N, anyway.
 
 CONTRIBUTING
 ------------------------------------------------------------------------------
@@ -237,6 +239,8 @@ HISTORY
   integrations.
 - Rename "description" to "identifier" and "helptext" to "description" in gn
   help and function arguments.
+- ENH: Other plugins and customizations can emit a User
+  LastSearchPatternChanged event to notify SearchRepeat of changes to @/.
 
 ##### 1.11    29-Apr-2016
 - FIX: v:searchforward requires Vim 7.2; don't support the

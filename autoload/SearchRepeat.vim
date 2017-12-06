@@ -19,6 +19,15 @@
 "				"automatic" change, not one initiated by the
 "				user, so the revert to standard search should
 "				not happen.
+"				Refactoring: Factor out
+"				s:ConsiderChangeInLastSearchPattern(). Rename
+"				SearchRepeat#UpdateLastSearchPattern() to
+"				s:UpdateLastSearchPattern() and introduce new
+"				SearchRepeat#OnUpdateOfLastSearchPattern() that
+"				both considers a change and then updates
+"				s:lastSearchPattern. This function is now
+"				invoked by the User LastSearchPatternChanged
+"				event.
 "   2.00.020	05-Dec-2017	Rename arguments: description -> identifier and
 "				helptext -> description.
 "   2.00.019	28-Nov-2017	ENH: Support "isResetToStandardSearch" option
@@ -173,8 +182,17 @@ let s:lastSearch = ["\<Plug>(SearchRepeat_n)", "\<Plug>(SearchRepeat_N)", 2, {}]
 let s:lastSearchIdentifier = ''
 let s:lastSearchPattern = ''
 
-function! SearchRepeat#UpdateLastSearchPattern()
+function! s:ConsiderChangeInLastSearchPattern()
+    if @/ !=# s:lastSearchPattern
+	call SearchRepeat#ResetToStandardSearch(s:lastSearch[3])
+    endif
+endfunction
+function! s:UpdateLastSearchPattern()
     let s:lastSearchPattern = @/
+endfunction
+function! SearchRepeat#OnUpdateOfLastSearchPattern()
+    call s:ConsiderChangeInLastSearchPattern()
+    call s:UpdateLastSearchPattern()
 endfunction
 
 function! SearchRepeat#StandardCommand( keys )
@@ -226,7 +244,7 @@ function! SearchRepeat#Set( mapping, oppositeMapping, howToHandleCount, ... )
 "   None.
 "******************************************************************************
     let s:lastSearch = [a:mapping, a:oppositeMapping, a:howToHandleCount, (a:0 ? a:1 : {})]
-    call SearchRepeat#UpdateLastSearchPattern()
+    call s:UpdateLastSearchPattern()
     if has_key(s:registrations, a:mapping)
 	let s:lastSearchIdentifier = s:registrations[a:mapping][2]
     elseif has_key(s:reverseRegistrations, a:mapping) && has_key(s:registrations, s:reverseRegistrations[a:mapping])
@@ -247,9 +265,7 @@ function! SearchRepeat#Execute( isOpposite, mapping, oppositeMapping, howToHandl
     return SearchRepeat#Repeat(g:SearchRepeat_IsAlwaysForwardWith_n ? a:isOpposite : 0)
 endfunction
 function! SearchRepeat#Repeat( isOpposite )
-    if @/ !=# s:lastSearchPattern
-	call SearchRepeat#ResetToStandardSearch(s:lastSearch[3])
-    endif
+    call s:ConsiderChangeInLastSearchPattern()
 
     let l:searchCommand = s:lastSearch[ a:isOpposite ]
 

@@ -222,6 +222,18 @@ search plugin: >
     endtry
 Look up the function definition for details on the arguments.
 
+				    *SearchRepeat-OnChangeInLastSearchPattern*
+The repeated search type may be affected by changes to the last search pattern
+(|quote/|; via |g:SearchRepeat_IsResetToStandardSearch|). Other plugins or
+customizations that change register / may notify SearchRepeat about this by
+firing a User event: >
+    let @/ = "new pattern"
+    silent doautocmd User LastSearchPatternChanged
+This is purely optional; the effects of that are only noticeable if the
+current search type is indicated in the 'titlestring' or 'statusline', for
+example. Even without the event, SearchRepeat will recognize and evaluate the
+patter change on the next navigation with n / N, anyway.
+
 ==============================================================================
 LIMITATIONS					    *SearchRepeat-limitations*
 
@@ -265,6 +277,8 @@ HISTORY							*SearchRepeat-history*
   integrations.
 - Rename "description" to "identifier" and "helptext" to "description" in gn
   help and function arguments.
+- ENH: Other plugins and customizations can emit a User
+  LastSearchPatternChanged event to notify SearchRepeat of changes to @/.
 
 1.11	29-Apr-2016
 - FIX: v:searchforward requires Vim 7.2; don't support the

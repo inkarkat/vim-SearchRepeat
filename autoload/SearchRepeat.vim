@@ -11,6 +11,9 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
+"   2.00.022	07-Dec-2017	CHG: Split a:howToHandleCountAndOptions into two
+"				separate arguments; passing a stringified
+"				Dictionary is awkward for clients.
 "   2.00.021	06-Dec-2017	Refactoring: Factor out
 "				SearchRepeat#UpdateLastSearchPattern(); clients
 "				that automatically update the search pattern
@@ -255,6 +258,21 @@ function! SearchRepeat#Set( mapping, oppositeMapping, howToHandleCount, ... )
     endif
 endfunction
 function! SearchRepeat#Execute( isOpposite, mapping, oppositeMapping, howToHandleCount, ... )
+"******************************************************************************
+"* PURPOSE:
+"   Execute a custom search defined by a:mapping / a:oppositeMapping, and enable
+"   repeating with n / N.
+"* ASSUMPTIONS / PRECONDITIONS:
+"   a:mapping / a:oppositeMapping exist and perform a (custom) search.
+"* EFFECTS / POSTCONDITIONS:
+"   Sets the passed search as the active one.
+"* INPUTS:
+"   a:isOpposite    Flag whether the a:oppositeMapping should be triggered.
+"   See SearchRepeat#Set() for the remaining arguments.
+"* RETURN VALUES:
+"   1 if successful search, 0 if an error occurred. The error message can then
+"   be obtained from ingo#err#Get().
+"******************************************************************************
     if a:isOpposite && ! g:SearchRepeat_IsAlwaysForwardWith_n
 	call SearchRepeat#Set(a:oppositeMapping, a:mapping, a:howToHandleCount, (a:0 ? a:1 : {}))
     else
@@ -326,6 +344,18 @@ endfunction
 let s:registrations = {"\<Plug>(SearchRepeat_n)": ['/', '', 'Standard search', '', '']}
 let s:reverseRegistrations = {"\<Plug>(SearchRepeat_N)": "\<Plug>(SearchRepeat_n)"}
 function! SearchRepeat#Register( mappingNext, mappingPrev, mappingToActivate, suffixToReactivate, identifier, description, relatedCommands )
+"******************************************************************************
+"* PURPOSE:
+"   Register a custom search for repetition with n / N by this plugin.
+"* ASSUMPTIONS / PRECONDITIONS:
+"   None.
+"* EFFECTS / POSTCONDITIONS:
+"   Registers the custom search.
+"* INPUTS:
+"   See SearchRepeat#Define().
+"* RETURN VALUES:
+"   None.
+"******************************************************************************
     let s:registrations[ a:mappingNext ] = [
     \   a:mappingToActivate,
     \   a:suffixToReactivate,
@@ -336,14 +366,15 @@ function! SearchRepeat#Register( mappingNext, mappingPrev, mappingToActivate, su
     let s:reverseRegistrations[ a:mappingPrev ] = a:mappingNext
 endfunction
 
-function! SearchRepeat#Define( mappingNext, mappingPrev, mappingToActivate, suffixToReactivate, identifier, description, relatedCommands, howToHandleCountAndOptions )
+function! SearchRepeat#Define( mappingNext, mappingPrev, mappingToActivate, suffixToReactivate, identifier, description, relatedCommands, howToHandleCount, ... )
 "******************************************************************************
 "* PURPOSE:
 "   Define a repeatable custom search.
 "* ASSUMPTIONS / PRECONDITIONS:
-"	? List of any external variable, control, or other element whose state affects this procedure.
+"   None.
 "* EFFECTS / POSTCONDITIONS:
-"	? List of the procedure's effect on each external variable, control, or other element.
+"   Defines mappings of the plugin's mapping prefix + the a:suffixToReactivate,
+"   and registers the custom search.
 "* INPUTS:
 "   a:mappingNext   Mapping to (forward) search for the next match.
 "   a:mappingPrev   Mapping to (backward) search for the previous match.
@@ -354,16 +385,16 @@ function! SearchRepeat#Define( mappingNext, mappingPrev, mappingToActivate, suff
 "   a:description       A short sentence that describes the custom search.
 "   a:relatedCommands   Any (Ex) commands that activate or configure the custom
 "			search. Like a:mappingToActivate, but for longer stuff.
-"   a:howToHandleCountAndOptions    See SearchRepeat#Set(); at least specify
-"				    a:howToHandleCount. If you also want to
-"				    specify a:options, you need to pass both as
-"				    a single string; e.g. "2, {'hlsearch': 0}".
+"   a:howToHandleCount  Number; see SearchRepeat#Set().
+"   a:options           Optional Dictionary of configuration options; see
+"			SearchRepeat#Set().
 "* RETURN VALUES:
-"	? Explanation of the value returned.
+"   None.
 "******************************************************************************
     execute printf('call SearchRepeat#Register("\%s", "\%s", a:mappingToActivate, a:suffixToReactivate, a:identifier, a:description, a:relatedCommands)', a:mappingNext, a:mappingPrev)
-    execute printf('nnoremap <silent> %s%s :<C-u>if ! SearchRepeat#Execute(0, "\%s", "\%s", %s)<Bar>echoerr ingo#err#Get()<Bar>endif<CR>', g:SearchRepeat_MappingPrefixNext, a:suffixToReactivate, a:mappingNext, a:mappingPrev, a:howToHandleCountAndOptions)
-    execute printf('nnoremap <silent> %s%s :<C-u>if ! SearchRepeat#Execute(1, "\%s", "\%s", %s)<Bar>echoerr ingo#err#Get()<Bar>endif<CR>', g:SearchRepeat_MappingPrefixPrev, a:suffixToReactivate, a:mappingNext, a:mappingPrev, a:howToHandleCountAndOptions)
+    let l:optionsArgument = (a:0 ? ', ' . string(a:1) : '')
+    execute printf('nnoremap <silent> %s%s :<C-u>if ! SearchRepeat#Execute(0, "\%s", "\%s", %s%s)<Bar>echoerr ingo#err#Get()<Bar>endif<CR>', g:SearchRepeat_MappingPrefixNext, a:suffixToReactivate, a:mappingNext, a:mappingPrev, a:howToHandleCount, l:optionsArgument)
+    execute printf('nnoremap <silent> %s%s :<C-u>if ! SearchRepeat#Execute(1, "\%s", "\%s", %s%s)<Bar>echoerr ingo#err#Get()<Bar>endif<CR>', g:SearchRepeat_MappingPrefixPrev, a:suffixToReactivate, a:mappingNext, a:mappingPrev, a:howToHandleCount, l:optionsArgument)
 endfunction
 
 

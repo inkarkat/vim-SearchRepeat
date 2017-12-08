@@ -120,7 +120,7 @@ To uninstall, use the :RmVimball command.
 ### DEPENDENCIES
 
 - Requires Vim 7.0 or higher.
-- Requires the ingo-library.vim plugin ([vimscript #4433](http://www.vim.org/scripts/script.php?script_id=4433)), version 1.005 or
+- Requires the ingo-library.vim plugin ([vimscript #4433](http://www.vim.org/scripts/script.php?script_id=4433)), version 1.025 or
   higher.
 
 CONFIGURATION
@@ -247,6 +247,7 @@ HISTORY
   help and function arguments.
 - ENH: Other plugins and customizations can emit a User
   LastSearchPatternChanged event to notify SearchRepeat of changes to @/.
+  __You need to update to ingo-library ([vimscript #4433](http://www.vim.org/scripts/script.php?script_id=4433)) version 1.025!__
 
 ##### 1.11    29-Apr-2016
 - FIX: v:searchforward requires Vim 7.2; don't support the

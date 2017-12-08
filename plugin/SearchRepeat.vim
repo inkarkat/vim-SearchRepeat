@@ -8,96 +8,6 @@
 "   The VIM LICENSE applies to this script; see ':help copyright'.
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
-"
-" REVISION	DATE		REMARKS
-"   2.00.025	28-Nov-2017	Refactoring: Move s:SearchCommand() to
-"				SearchRepeat#StandardCommand().
-"   2.00.024	22-Nov-2017	Refactoring: Extract
-"				SearchRepeat#ResetToStandardSearch().
-"				Reset to standard search is now configurable via
-"				g:SearchRepeat_IsResetToStandardSearch.
-"				Add <Leader>tgn mapping to toggle
-"				g:SearchRepeat_IsResetToStandardSearch.
-"   2.00.023	29-Apr-2016	CHG: Split g:SearchRepeat_MappingPrefix into two
-"				g:SearchRepeat_MappingPrefixNext and
-"				g:SearchRepeat_MappingPrefixPrev. With this,
-"				custom searches only need to register a single
-"				suffix for forward / backward searches. This
-"				both frees up keys (which I'm running out of
-"				with my many custom searches), and enables
-"				non-alphabetic suffixes (SearchForExpr.vim is
-"				now using gn= instead of gne / gnE).
-"   1.10.022	27-May-2014	ENH: Add g:SearchRepeat_IsAlwaysForwardWith_n
-"				configuration to consistently always move
-"				forward / backward with n / N, regardless of
-"				whether the current search mode goes into the
-"				opposite direction.
-"				Move s:RepeatSearch() to autoload script.
-"   1.00.021	24-May-2014	Introduce g:SearchRepeat_MappingPrefix to allow
-"				customization of all repeat mappings.
-"				Adapt <Plug>-mapping naming.
-"	020	28-Apr-2014	Split off documentation.
-"	019	05-Jun-2013	FIX: Passing of [count] of / and ? broke
-"				somewhere between Vim 7.3.000 and 7.3.823;
-"				completly rewrite the complex setup with a
-"				:map-expr. Why haven't I thought of that
-"				before?!
-"				Apply the same to the * / g* commands and do
-"				away with all the clumsy setup.
-"				Change mappings to use <SID>(name) scheme.
-"	018	08-Mar-2013	Replace global temporary g:errmsg with
-"				ingo#err#Get().
-"	017	12-May-2012	Just :echomsg'ing the error doesn't abort a
-"				mapping sequence, e.g. when "n" is contained in
-"				a macro, but it should. Therefore, returning the
-"				errmsg from SearchRepeat#Repeat(), and using
-"				:echoerr to print the error directly from the
-"				mapping instead.
-"	016	30-Sep-2011	Use <silent> for <Plug> mapping instead of
-"				default mapping.
-"	015	08-Feb-2011	BUG: Search repeat via n / N always opened fold,
-"				even when no occurrence of the search pattern
-"				was found.
-"	014	06-Oct-2009	Do not define * mapping for select mode;
-"				printable characters should start insert mode.
-"	013	27-Jul-2009	Added insert mode shadow mappings and <SID>NM
-"				abstraction to allow execution of SearchRepeat
-"				mappings from insert mode via <C-O>.
-"	012	14-Jul-2009	The / and ? mappings swallowed the optional
-"				[count] that can be supplied to the built-ins;
-"				now using a :map-expr to pass in the [count].
-"				Now storing the [count] of the last search
-"				command in g:lastSearchCount for consumption by
-"				other plugins (SearchAsQuickJumpNext).
-"	011	13-Jun-2009	BF: [g]* mappings now remove arbitrary entries
-"				from the command history; cannot reproduce the
-"				adding to history. Removing the histdel() again.
-"	010	30-May-2009	Using nnoremap for SearchRepeat integration
-"				(through <SID>SearchRepeat_Star, not <Plug>...
-"				mappings); otherwise, the command would be
-"				listed in FuzzyFinderMruCmd.
-"	009	28-Feb-2009	BF: [g]* mappings added ":call
-"				SearchRepeat#Set(...) to command history. Now
-"				deleting the added entry.
-"	008	03-Feb-2009	Removed hardcoded dependency to
-"				SearchHighlighting.vim by checking (and keeping)
-"				existing mappings of [g]* commands.
-"	007	02-Feb-2009	Fixed broken macro playback of n and N
-"				repetition mappings by using :normal for the
-"				mapping, and explicitly setting 'hlsearch' via
-"				feedkeys(). As this setting isn't implicit in
-"				the repeated commands, clients can opt out of
-"				it.
-"	006	02-Jan-2009	Fixed broken macro playback of / and ? mappings
-"				via feedkeys() trick.
-"	005	05-Aug-2008	Split off autoload functions from plugin script.
-"	004	22-Jul-2008	Changed s:registrations to dictionary to avoid
-"				duplicates when re-registering (e.g. when
-"				reloading plugin).
-"	003	19-Jul-2008	ENH: Added basic help and registration via
-"				'gn' mapping and SearchRepeatRegister().
-"	002	30-Jun-2008	ENH: Handling optional [count] for searches.
-"	001	27-Jun-2008	file creation
 
 " Avoid installing twice or when in unsupported Vim version.
 if exists('g:loaded_SearchRepeat') || (v:version < 700)
@@ -179,12 +89,19 @@ xnoremap <silent> <script>  *  <SID>(SearchRepeat_Star)<SID>(SetRepeat)
 
 nnoremap <silent> <Plug>(SearchRepeatToggleResetToStandard) :<C-u>call SearchRepeat#ToggleResetToStandard()<CR>
 if ! hasmapto('<Plug>(SearchRepeatToggleResetToStandard)', 'n')
-    nmap <Leader>tgn <Plug>(SearchRepeatToggleResetToStandard)
+    execute printf('nmap <Leader>t%s <Plug>(SearchRepeatToggleResetToStandard)', g:SearchRepeat_MappingPrefixNext)
 endif
 
 nnoremap <silent> <Plug>(SearchRepeatHelp) :<C-U>call SearchRepeat#Help()<CR>
 if ! hasmapto('<Plug>(SearchRepeatHelp)', 'n')
     execute printf('nmap %s <Plug>(SearchRepeatHelp)', g:SearchRepeat_MappingPrefixNext)
 endif
+
+
+"- autocmds --------------------------------------------------------------------
+
+augroup SearchRepeat
+    autocmd! User LastSearchPatternChanged call SearchRepeat#OnUpdateOfLastSearchPattern()
+augroup END
 
 " vim: set ts=8 sts=4 sw=4 noexpandtab ff=unix fdm=syntax :

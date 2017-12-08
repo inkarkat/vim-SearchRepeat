@@ -184,7 +184,7 @@ xnoremap <silent> <script>  *  <SID>(SearchRepeat_Star)<SID>(SetRepeat)
 
 nnoremap <silent> <Plug>(SearchRepeatToggleResetToStandard) :<C-u>call SearchRepeat#ToggleResetToStandard()<CR>
 if ! hasmapto('<Plug>(SearchRepeatToggleResetToStandard)', 'n')
-    nmap <Leader>tgn <Plug>(SearchRepeatToggleResetToStandard)
+    execute printf('nmap <Leader>t%s <Plug>(SearchRepeatToggleResetToStandard)', g:SearchRepeat_MappingPrefixNext)
 endif
 
 nnoremap <silent> <Plug>(SearchRepeatHelp) :<C-U>call SearchRepeat#Help()<CR>

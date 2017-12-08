@@ -62,6 +62,11 @@ USAGE
     To change the search type back to plain normal search (without changing the
     search pattern), just type '/<Enter>'.
 
+    <Leader>tgn             Toggle whether a change in the current search pattern
+                            resets searching with n/N to standard search, or the
+                            current search type is kept.
+                            (g:SearchRepeat_IsResetToStandardSearch).
+
 ### EXAMPLE
 
 Let's define a simple custom search that positions the current search result
@@ -150,10 +155,11 @@ To change the default mapping prefixes for forward / backward search, use:
     let g:SearchRepeat_MappingPrefixPrev = 'gN'
 
 This will affect all SearchRepeat integrations done by custom searches, and by
-default also the gn list of all registered search types. To change the
-latter one separately, use:
+default also the gn list of all registered search types, and the toggling of
+reset to standard search mapping. To change the latter ones separately, use:
 
     nmap <Leader>gn <Plug>(SearchRepeatHelp)
+    nmap <Leader>tgn <Plug>(SearchRepeatToggleResetToStandard)
 
 INTEGRATION
 ------------------------------------------------------------------------------

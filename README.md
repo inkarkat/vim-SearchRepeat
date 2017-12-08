@@ -219,7 +219,7 @@ https://github.com/inkarkat/vim-SearchRepeat/issues or email (address below).
 HISTORY
 ------------------------------------------------------------------------------
 
-##### 2.00    RELEASEME
+##### 2.00    08-Dec-2017
 - CHG: Split g:SearchRepeat\_MappingPrefix into two
   g:SearchRepeat\_MappingPrefixNext and g:SearchRepeat\_MappingPrefixPrev. With
   this, custom searches only need to register a single suffix for forward /

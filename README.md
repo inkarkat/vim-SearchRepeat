@@ -219,6 +219,12 @@ https://github.com/inkarkat/vim-SearchRepeat/issues or email (address below).
 HISTORY
 ------------------------------------------------------------------------------
 
+##### 2.01    RELEASEME
+- Remove the remapping of [g]\*; its only purpose was the resetting to standard
+  search, and that is now handled (albeit not updated immediately) by
+  comparing @/ contents. Additionally, other plugins can emit the
+  LastSearchPatternChanged event to inform us.
+
 ##### 2.00    08-Dec-2017
 - CHG: Split g:SearchRepeat\_MappingPrefix into two
   g:SearchRepeat\_MappingPrefixNext and g:SearchRepeat\_MappingPrefixPrev. With

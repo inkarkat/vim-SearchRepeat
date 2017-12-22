@@ -50,22 +50,6 @@ nnoremap <silent> n :<C-u>if ! SearchRepeat#Repeat(0)<Bar>echoerr ingo#err#Get()
 nnoremap <silent> N :<C-u>if ! SearchRepeat#Repeat(1)<Bar>echoerr ingo#err#Get()<Bar>endif<CR>
 
 
-" The user might have remapped the [g]* commands (e.g. by using the
-" SearchHighlighting plugin). We preserve these mappings (assuming they're
-" remappable <Plug>-mappings).
-" Note: Must check for existing mapping to avoid recursive mapping after script
-" reload.
-if empty(maparg('<SID>(SearchRepeat_Star)', 'n'))
-    execute 'nmap <silent> <SID>(SearchRepeat_Star) ' . (empty(maparg('*', 'n')) ? '*' : maparg('*', 'n'))
-endif
-if empty(maparg('<SID>(SearchRepeat_GStar)', 'n'))
-    execute 'nmap <silent> <SID>(SearchRepeat_GStar) ' . (empty(maparg('*', 'n')) ? 'g*' : maparg('g*', 'n'))
-endif
-if empty(maparg('<SID>(SearchRepeat_Star)', 'x'))
-    execute 'xmap <silent> <SID>(SearchRepeat_Star) ' . (empty(maparg('*', 'x')) ? '*' : maparg('*', 'x'))
-endif
-
-
 
 " Capture changes in the search pattern.
 
@@ -74,14 +58,6 @@ endif
 " commands, and handled internally in Vim.
 nnoremap <expr> /  SearchRepeat#StandardCommand('/')
 nnoremap <expr> ?  SearchRepeat#StandardCommand('?')
-
-" Note: Reusing the s:SearchCommand() function to set the repeat; the storing of
-" [count] doesn't matter here.
-noremap  <expr> <SID>(SetRepeat)  SearchRepeat#StandardCommand('')
-noremap! <expr> <SID>(SetRepeat)  SearchRepeat#StandardCommand('')
-nnoremap <silent> <script>  *  <SID>(SearchRepeat_Star)<SID>(SetRepeat)
-nnoremap <silent> <script> g* <SID>(SearchRepeat_GStar)<SID>(SetRepeat)
-xnoremap <silent> <script>  *  <SID>(SearchRepeat_Star)<SID>(SetRepeat)
 
 
 

@@ -69,6 +69,8 @@ The following custom searches integrate with this plugin:
   Searches that span multiple windows, buffers, arguments.
 - |SearchMarks.vim| (vimscript #0000):
   Go to any or same marks set by mark.vim.
+- |SearchNoHorizontalScroll.vim|((vimscript #0000):
+  Skip matches that would cause horizontall scrolling to show them.
 - |SearchOffset.vim| (vimscript #0000):
   Apply another search or motion after jumping to matches.
 - |SearchPatternExpression.vim| (vimscript #0000):
@@ -313,7 +315,7 @@ First published version.
 Started development.
 
 ==============================================================================
-Copyright: (C) 2008-2017 Ingo Karkat
+Copyright: (C) 2008-2019 Ingo Karkat
 The VIM LICENSE applies to this plugin; see |copyright|.
 
 Maintainer:	Ingo Karkat <ingo@karkat.de>

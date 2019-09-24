@@ -77,6 +77,8 @@ The following custom searches integrate with this plugin:
   Dynamically adapt the search pattern on each jump (and events).
 - |SearchStandardSearch.vim| (vimscript #0000):
   Re-activate the normal, built-in search in SearchRepeat.
+- |SearchWithAction.vim| (vimscript #0000):
+  Execute a command after jumping to match (or failing to do so).
 - |SearchWithInv.vim| (vimscript #0000):
   Search for next match with inverted wrapscan / ignorecase settings.
 - |SearchWithoutClosedFolds.vim| (vimscript #0000):

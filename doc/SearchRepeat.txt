@@ -235,14 +235,14 @@ Look up the function definition for details on the arguments.
 				    *SearchRepeat-OnChangeInLastSearchPattern*
 The repeated search type may be affected by changes to the last search pattern
 (|quote/|; via |g:SearchRepeat_IsResetToStandardSearch|). Other plugins or
-customizations that change register / may notify SearchRepeat about this by
-firing a User event: >
+customizations that change register |quote/| may notify SearchRepeat about
+this by firing a User event: >
     let @/ = "new pattern"
     silent doautocmd User LastSearchPatternChanged
 This is purely optional; the effects of that are only noticeable if the
 current search type is indicated in the 'titlestring' or 'statusline', for
 example. Even without the event, SearchRepeat will recognize and evaluate the
-patter change on the next navigation with n / N, anyway.
+pattern change on the next navigation with n / N, anyway.
 
 ==============================================================================
 LIMITATIONS					    *SearchRepeat-limitations*
@@ -317,7 +317,7 @@ First published version.
 Started development.
 
 ==============================================================================
-Copyright: (C) 2008-2019 Ingo Karkat
+Copyright: (C) 2008-2021 Ingo Karkat
 The VIM LICENSE applies to this plugin; see |copyright|.
 
 Maintainer:	Ingo Karkat <ingo@karkat.de>

@@ -5,7 +5,7 @@
 "   - ingo/escape/command.vim autoload script
 "   - ingo/msg.vim autoload script
 "
-" Copyright: (C) 2008-2017 Ingo Karkat
+" Copyright: (C) 2008-2022 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
@@ -95,7 +95,6 @@ function! SearchRepeat#Set( mapping, oppositeMapping, howToHandleCount, ... )
 "	0: Doesn't handle count, single invocation only.
 "	1: Doesn't handle count itself, invoke search command multiple times.
 "	2: Handles count itself, pass it through.
-"   a:options           Optional configuration:
 "   a:options.hlsearch  Flag whether to re-enable 'hlsearch' during repetition
 "			(default 1) (which is not done automatically because the
 "			repeated mapping is executed from within a function, and

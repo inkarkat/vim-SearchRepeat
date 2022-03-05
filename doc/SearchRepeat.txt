@@ -46,6 +46,8 @@ The following custom searches integrate with this plugin:
   Quick search without affecting 'hlsearch', search pattern and history.
 - |SearchAtFixedWindowPosition.vim| (vimscript #0000):
   Search and position the search result at the top / center / bottom of the window.
+- |SearchFoldsOnce.vim| (vimscript #0000):
+  Show only one unique search result in closed folds.
 - |SearchFoldsWithoutOpening.vim| (vimscript #0000):
   Show search results in closed folds without opening them.
 - |SearchForExpr.vim| (vimscript #0000):
@@ -317,7 +319,7 @@ First published version.
 Started development.
 
 ==============================================================================
-Copyright: (C) 2008-2021 Ingo Karkat
+Copyright: (C) 2008-2022 Ingo Karkat
 The VIM LICENSE applies to this plugin; see |copyright|.
 
 Maintainer:	Ingo Karkat <ingo@karkat.de>

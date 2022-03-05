@@ -46,6 +46,8 @@ The following custom searches integrate with this plugin:
   Quick search without affecting 'hlsearch', search pattern and history.
 - |SearchAtFixedWindowPosition.vim| (vimscript #0000):
   Search and position the search result at the top / center / bottom of the window.
+- |SearchFirstUniqueMatch.vim| (vimscript #0000):
+  Search for the first unique match in the buffer only.
 - |SearchFoldsOnce.vim| (vimscript #0000):
   Show only one unique search result in closed folds.
 - |SearchFoldsWithoutOpening.vim| (vimscript #0000):

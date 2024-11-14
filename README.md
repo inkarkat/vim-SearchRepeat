@@ -1,4 +1,4 @@
-SEARCH REPEAT   
+SEARCH REPEAT
 ===============================================================================
 _by Ingo Karkat_
 
@@ -199,8 +199,8 @@ Look up the function definition for details on the arguments.
 
 The repeated search type may be affected by changes to the last search pattern
 (quote/; via g:SearchRepeat\_IsResetToStandardSearch). Other plugins or
-customizations that change register / may notify SearchRepeat about this by
-firing a User event:
+customizations that change register quote/ may notify SearchRepeat about
+this by firing a User event:
 
     let @/ = "new pattern"
     silent doautocmd User LastSearchPatternChanged
@@ -208,7 +208,7 @@ firing a User event:
 This is purely optional; the effects of that are only noticeable if the
 current search type is indicated in the 'titlestring' or 'statusline', for
 example. Even without the event, SearchRepeat will recognize and evaluate the
-patter change on the next navigation with n / N, anyway.
+pattern change on the next navigation with n / N, anyway.
 
 CONTRIBUTING
 ------------------------------------------------------------------------------
@@ -218,6 +218,12 @@ https://github.com/inkarkat/vim-SearchRepeat/issues or email (address below).
 
 HISTORY
 ------------------------------------------------------------------------------
+
+##### 2.01    14-Nov-2024
+- Remove the remapping of [g]\*; its only purpose was the resetting to standard
+  search, and that is now handled (albeit not updated immediately) by
+  comparing @/ contents. Additionally, other plugins can emit the
+  LastSearchPatternChanged event to inform us.
 
 ##### 2.00    08-Dec-2017
 - CHG: Split g:SearchRepeat\_MappingPrefix into two
@@ -236,7 +242,7 @@ HISTORY
 - Remember the contents of @/ and reset to standard search when it changed
   (e.g. by \* / g\*, or plugins like my SearchAlternatives.vim).
 - Make this configurable via g:SearchRepeat\_IsResetToStandardSearch and enable
-  toggling via new <Leader>tgn mapping.
+  toggling via new &lt;Leader&gt;tgn mapping.
 - ENH: Omit related commands and condense activation commands column in search
   type list when in small-width Vim, to avoid line breaks that make the layout
   hard to read.
@@ -247,7 +253,8 @@ HISTORY
   help and function arguments.
 - ENH: Other plugins and customizations can emit a User
   LastSearchPatternChanged event to notify SearchRepeat of changes to @/.
-  __You need to update to ingo-library ([vimscript #4433](http://www.vim.org/scripts/script.php?script_id=4433)) version 1.025!__
+
+__You need to update to ingo-library ([vimscript #4433](http://www.vim.org/scripts/script.php?script_id=4433)) version 1.025!__
 
 ##### 1.11    29-Apr-2016
 - FIX: v:searchforward requires Vim 7.2; don't support the
@@ -269,7 +276,7 @@ HISTORY
 - Started development.
 
 ------------------------------------------------------------------------------
-Copyright: (C) 2008-2017 Ingo Karkat -
+Copyright: (C) 2008-2024 Ingo Karkat -
 The [VIM LICENSE](http://vimdoc.sourceforge.net/htmldoc/uganda.html#license) applies to this plugin.
 
-Maintainer:     Ingo Karkat <ingo@karkat.de>
+Maintainer:     Ingo Karkat &lt;ingo@karkat.de&gt;

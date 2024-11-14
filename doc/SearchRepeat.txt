@@ -46,6 +46,10 @@ The following custom searches integrate with this plugin:
   Quick search without affecting 'hlsearch', search pattern and history.
 - |SearchAtFixedWindowPosition.vim| (vimscript #0000):
   Search and position the search result at the top / center / bottom of the window.
+- |SearchFirstUniqueMatch.vim| (vimscript #0000):
+  Search for the first unique match in the buffer only.
+- |SearchFoldsOnce.vim| (vimscript #0000):
+  Show only one unique search result in closed folds.
 - |SearchFoldsWithoutOpening.vim| (vimscript #0000):
   Show search results in closed folds without opening them.
 - |SearchForExpr.vim| (vimscript #0000):
@@ -69,12 +73,16 @@ The following custom searches integrate with this plugin:
   Searches that span multiple windows, buffers, arguments.
 - |SearchMarks.vim| (vimscript #0000):
   Go to any or same marks set by mark.vim.
+- |SearchNoHorizontalScroll.vim|((vimscript #0000):
+  Skip matches that would cause horizontall scrolling to show them.
 - |SearchOffset.vim| (vimscript #0000):
   Apply another search or motion after jumping to matches.
 - |SearchPatternExpression.vim| (vimscript #0000):
   Dynamically adapt the search pattern on each jump (and events).
 - |SearchStandardSearch.vim| (vimscript #0000):
   Re-activate the normal, built-in search in SearchRepeat.
+- |SearchWithAction.vim| (vimscript #0000):
+  Execute a command after jumping to match (or failing to do so).
 - |SearchWithInv.vim| (vimscript #0000):
   Search for next match with inverted wrapscan / ignorecase settings.
 - |SearchWithoutClosedFolds.vim| (vimscript #0000):
@@ -231,14 +239,14 @@ Look up the function definition for details on the arguments.
 				    *SearchRepeat-OnChangeInLastSearchPattern*
 The repeated search type may be affected by changes to the last search pattern
 (|quote/|; via |g:SearchRepeat_IsResetToStandardSearch|). Other plugins or
-customizations that change register / may notify SearchRepeat about this by
-firing a User event: >
+customizations that change register |quote/| may notify SearchRepeat about
+this by firing a User event: >
     let @/ = "new pattern"
     silent doautocmd User LastSearchPatternChanged
 This is purely optional; the effects of that are only noticeable if the
 current search type is indicated in the 'titlestring' or 'statusline', for
 example. Even without the event, SearchRepeat will recognize and evaluate the
-patter change on the next navigation with n / N, anyway.
+pattern change on the next navigation with n / N, anyway.
 
 ==============================================================================
 LIMITATIONS					    *SearchRepeat-limitations*
@@ -256,6 +264,12 @@ https://github.com/inkarkat/vim-SearchRepeat/issues or email (address below).
 
 ==============================================================================
 HISTORY							*SearchRepeat-history*
+
+2.01	14-Nov-2024
+- Remove the remapping of [g]*; its only purpose was the resetting to standard
+  search, and that is now handled (albeit not updated immediately) by
+  comparing @/ contents. Additionally, other plugins can emit the
+  LastSearchPatternChanged event to inform us.
 
 2.00	08-Dec-2017
 - CHG: Split g:SearchRepeat_MappingPrefix into two
@@ -307,7 +321,7 @@ First published version.
 Started development.
 
 ==============================================================================
-Copyright: (C) 2008-2017 Ingo Karkat
+Copyright: (C) 2008-2024 Ingo Karkat
 The VIM LICENSE applies to this plugin; see |copyright|.
 
 Maintainer:	Ingo Karkat <ingo@karkat.de>

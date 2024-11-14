@@ -265,7 +265,7 @@ https://github.com/inkarkat/vim-SearchRepeat/issues or email (address below).
 ==============================================================================
 HISTORY							*SearchRepeat-history*
 
-2.01	RELEASEME
+2.01	14-Nov-2024
 - Remove the remapping of [g]*; its only purpose was the resetting to standard
   search, and that is now handled (albeit not updated immediately) by
   comparing @/ contents. Additionally, other plugins can emit the
@@ -321,7 +321,7 @@ First published version.
 Started development.
 
 ==============================================================================
-Copyright: (C) 2008-2022 Ingo Karkat
+Copyright: (C) 2008-2024 Ingo Karkat
 The VIM LICENSE applies to this plugin; see |copyright|.
 
 Maintainer:	Ingo Karkat <ingo@karkat.de>

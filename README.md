@@ -219,7 +219,7 @@ https://github.com/inkarkat/vim-SearchRepeat/issues or email (address below).
 HISTORY
 ------------------------------------------------------------------------------
 
-##### 2.01    RELEASEME
+##### 2.01    14-Nov-2024
 - Remove the remapping of [g]\*; its only purpose was the resetting to standard
   search, and that is now handled (albeit not updated immediately) by
   comparing @/ contents. Additionally, other plugins can emit the
@@ -276,7 +276,7 @@ __You need to update to ingo-library ([vimscript #4433](http://www.vim.org/scrip
 - Started development.
 
 ------------------------------------------------------------------------------
-Copyright: (C) 2008-2021 Ingo Karkat -
+Copyright: (C) 2008-2024 Ingo Karkat -
 The [VIM LICENSE](http://vimdoc.sourceforge.net/htmldoc/uganda.html#license) applies to this plugin.
 
 Maintainer:     Ingo Karkat &lt;ingo@karkat.de&gt;
